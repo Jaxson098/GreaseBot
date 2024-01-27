@@ -1,183 +1,199 @@
-import math
+#
+# Copyright (c) FIRST and other WPILib contributors.
+# Open Source Software; you can modify and/or share it under the terms of
+# the WPILib BSD license file in the root directory of this project.
+#
 
+import math
 import wpilib
-import wpimath
-from ctre.sensors import CANCoder
+import wpimath.kinematics
+import wpimath.geometry
+import wpimath.controller
+import wpimath.trajectory
+from phoenix5.sensors import CANCoder
 from rev import CANSparkMax
 
-#from networktables import NetworkTables
-from wpimath.controller import PIDController
-from collections import namedtuple
+kWheelRadius = 0.0508 # In meters
+kEncoderResolution = 4096
+kVEncoderResolution = 42
+kModuleMaxAngularVelocity = math.pi
+kModuleMaxAngularAcceleration = math.tau
 
-# Create the structure of the config: SmartDashboard prefix, Encoder's zero point, Drive motor inverted, Allow reverse
-ModuleConfig = namedtuple('ModuleConfig', ['sd_prefix', 'zero', 'inverted', 'allow_reverse'])
-
-MAX_VOLTAGE = 5 # Absolute encoder measures from 0V to 5V
 
 class SwerveModule:
-    # Get the motors, encoder and config from injection
-    driveMotor: CANSparkMax
-    rotateMotor: CANSparkMax
+    def __init__(
+        self,
+        driveMotorID: int,
+        turningMotorID: int,
+        driveEncoderID: int,
+        turningEncoderID: int,
+    ) -> None:
+        """Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
+
+        BERT NOTES:
+
+        - Using different encoder types, current module assumes MXP quadrature encoder that takes 2 channels.  
+        - Will need to modify to enable encoders based on CAN ID.
         
-    encoder: CANCoder
-
-    cfg: ModuleConfig
-
-    def setup(self):
-        """
-        Called after injection
-        """
-        # Config
-        self.sd_prefix = self.cfg.sd_prefix or 'Module'
-        self.encoder_zero = self.cfg.zero or 0
-        self.inverted = self.cfg.inverted or False
-        self.allow_reverse = self.cfg.allow_reverse or True
-
-        # SmartDashboard
-        #self.sd = NetworkTables.getTable('SmartDashboard')
-        #self.debugging = self.sd.getEntry('drive/drive/debugging')
-
-        # Motor
-        self.driveMotor.setInverted(self.inverted)
-
-        self._requested_angle = 0
-        self._requested_speed = 0
-
-        # PID Controller
-        #kP = 1.5, kI = 0.0, kD = 0.0
-        # enable pid continues input (0.0, 5.0)
-        # set tolerance (0.05, 0.05)
-        self._pid_controller = PIDController(1.5, 0.0, 0.0, 0.05)
-        self._pid_controller.enableContinuousInput(0.0, 5.0) # Will set the 0 and 5 as the same point
-        self._pid_controller.setTolerance(1, 1) # Tolerance where the PID will be accpeted aligned
-
-    def get_degree(self):
-        """
-        :returns: the degree from the encoder, return degree
-        """
-        return self.encoder.getAbsolutePosition() - self.encoder_zero
+        Front Left (+,+) 
+            - Drive Motor: 4
+            - Rotation Motor: 3
+            - Drive Encoder: 13
+            - Rotation Encoder: 3 
         
-        ##return self.encoder.getBusVoltage() - self.encoder_zero
+        Front Right (+,-) 
+            - Drive Motor: 7
+            - Rotation Motor: 8
+            - Drive Encoder: 10
+            - Rotation Encoder: 8
+
+        Rear Left (-,+) 
+            - Drive Motor: 2
+            - Rotation Motor: 1
+            - Drive Encoder: 11
+            - Rotation Encoder: 1
+
+        Rear Right (-,-) 
+            - Drive Motor: 5
+            - Rotation Motor: 6
+            - Drive Encoder: 12
+            - Rotation Encoder: 6
+            
+        # Drive Motors
+        self.frontLeftModule_driveMotor = CANSparkMax(4, CANSparkMax.MotorType.kBrushless)
+        self.frontRightModule_driveMotor = CANSparkMax(7, CANSparkMax.MotorType.kBrushless)
+        self.rearLeftModule_driveMotor = CANSparkMax(2, CANSparkMax.MotorType.kBrushless)
+        self.rearRightModule_driveMotor = CANSparkMax(5, CANSparkMax.MotorType.kBrushless)
         
+        # Rotate Motors
+        self.frontLeftModule_rotateMotor = CANSparkMax(3, CANSparkMax.MotorType.kBrushless)
+        self.frontRightModule_rotateMotor = CANSparkMax(8, CANSparkMax.MotorType.kBrushless)
+        self.rearLeftModule_rotateMotor = CANSparkMax(1, CANSparkMax.MotorType.kBrushless)
+        self.rearRightModule_rotateMotor = CANSparkMax(6, CANSparkMax.MotorType.kBrushless)
 
-    def flush(self):
+        # Encoders
+        self.frontLeftModule_encoder = CANCoder(13, "rio")
+        self.frontRightModule_encoder = CANCoder(10, "rio")
+        self.rearLeftModule_encoder = CANCoder(11, "rio")
+        self.rearRightModule_encoder = CANCoder(12, "rio")
+
+        # Rotation Encoders - check if we need absolute or relative encoder
+        self.frontLeftModule_rot_encoder = SparkMaxAbsoluteEncoder(3)
+        self.frontRightModule_rot_encoder = SparkMaxAbsoluteEncoder(8)
+        self.rearLeftModule_rot_encoder = SparkMaxAbsoluteEncoder(1)
+        self.rearRightModule_rot_encoder = SparkMaxAbsoluteEncoder(6)
+
         """
-        Flush the modules requested speed and degree.
-        Resets the PID controller.
+
+        # NOTE: need to confirm output from SparkMaxAbsoluteEncoder - may shift to Relative Encoder
+        ## No longer required 
+        self.driveMotor = CANSparkMax(driveMotorID, CANSparkMax.MotorType.kBrushless)
+        self.turningMotor = CANSparkMax(turningMotorID, CANSparkMax.MotorType.kBrushless)
+        self.driveEncoder = self.driveMotor.getEncoder()
+        self.turningEncoder = CANCoder(turningEncoderID, "rio")
+
+        # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
+
+        # NOTE: This is the values we need to tweak 99, 102, 114, & 115
+        # Gains are for example purposes only - must be determined for your own robot!
+        self.drivePIDController = wpimath.controller.PIDController(1, 0, 0)
+
+        # Gains are for example purposes only - must be determined for your own robot!
+        self.turningPIDController = wpimath.controller.ProfiledPIDController(
+            1,
+            0,
+            0,
+            wpimath.trajectory.TrapezoidProfile.Constraints(
+                kModuleMaxAngularVelocity,
+                kModuleMaxAngularAcceleration,
+            ),
+        )
+
+        # Gains are for example purposes only - must be determined for your own robot!
+        # NOTE: To review
+        self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0, 1)
+        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0.1, 1)
+
+        # Set the distance per pulse for the drive encoder. We can simply use the
+        # distance traveled for one rotation of the wheel divided by the encoder
+        # resolution.
+
+        # NOTE: Need to determine if this is the right distance per pulse value (from user guide it shows 42 counts per revolution)
+        self.driveEncoder.setVelocityConversionFactor(
+            math.tau * kWheelRadius / kVEncoderResolution
+        )
+
+        #NOTE: Review this again: They use RADIANS instaed of DEGREES
+
+        # Set the distance (in this case, angle) in radians per pulse for the turning encoder.
+        # This is the the angle through an entire rotation (2 * pi) divided by the
+        # encoder resolution.
+
+        # NOTE: Need to determine if this is the right distance per pulse value
+        #self.turningEncoder.setStatusFramePeriod(math.tau / kEncoderResolution)
+
+        # Limit the PID Controller's input range between -pi and pi and set the input
+        # to be continuous.
+        self.turningPIDController.enableContinuousInput(-math.pi, math.pi)
+
+    def getState(self) -> wpimath.kinematics.SwerveModuleState:
+        """Returns the current state of the module.
+
+        :returns: The current state of the module.
         """
-        self._requested_angle = 0 # Check
-        self._requested_speed = 0
-        #self._pid_controller.reset()
+        # NOTE: Need to determine if getVelocity value aligns with the expected value vs getRate
+        return wpimath.kinematics.SwerveModuleState(
+            self.driveEncoder.getVelocity(),
+            wpimath.geometry.Rotation2d(self.turningEncoder.getAbsolutePosition()),
+        )
 
-    @staticmethod
-    def degree_to_rad(degree):
+    def getPosition(self) -> wpimath.kinematics.SwerveModulePosition:
+        """Returns the current position of the module.
+
+        :returns: The current position of the module.
         """
-        Convert a given voltage value to rad.
+        return wpimath.kinematics.SwerveModulePosition(
+            self.driveEncoder.getVelocity(),
+            wpimath.geometry.Rotation2d(self.turningEncoder.getAbsolutePosition()),
+        )
 
-        :param voltage: a voltage value between 0 and 5
-        :returns: the radian value betwen 0 and 2pi
+    def setDesiredState(
+        self, desiredState: wpimath.kinematics.SwerveModuleState
+    ) -> None:
+        """Sets the desired state for the module.
+
+        :param desiredState: Desired state with speed and angle.
         """
-        return degree * math.pi / 180
-    
-    @staticmethod
-    def degree_to_voltage(degree):
-        """
-        Convert a given degree to voltage.
 
-        :param degree: a degree value between 0 and 360
-        :returns" the voltage value between 0 and 5
-        """
-       
-        return degree / 360 * 5
+        encoderRotation = wpimath.geometry.Rotation2d(self.turningEncoder.getAbsolutePosition())
 
-    def move(self, speed, deg):
-        """
-        Set the requested speed and rotation of passed.
+        # Optimize the reference state to avoid spinning further than 90 degrees
+        state = wpimath.kinematics.SwerveModuleState.optimize(
+            desiredState, encoderRotation
+        )
 
-        :param speed: requested speed of wheel from -1 to 1
-        :param deg: requested angle of wheel from 0 to 359 (Will wrap if over or under)
-        """
-        #deg %= 360 # Prevent values past 360
+        # Scale speed by cosine of angle error. This scales down movement perpendicular to the desired
+        # direction of travel that can occur when modules change directions. This results in smoother
+        # driving.
+        state.speed *= (state.angle - encoderRotation).cos()
 
-        ## NEED to review
-         
-        if self.allow_reverse:
-            """
-            If the difference between the requested degree and the current degree is
-            more than 90 degrees, don't turn the wheel 180 degrees. Instead reverse the speed.
-            """
-            if abs(deg - self.get_degree() > 90):
-                speed *= -1
-                deg += 180
-                deg %= 360
-        
+        # Calculate the drive output from the drive PID controller.
+        driveOutput = self.drivePIDController.calculate(
+            self.driveEncoder.getVelocity(), state.speed
+        )
 
-        self._requested_speed = speed
-        self._requested_angle = deg
+        driveFeedforward = self.driveFeedforward.calculate(state.speed)
 
-    def debug(self):
-        """
-        Print debugging information about the module to the log.
-        """
-        print(self.sd_prefix, '; requested_speed: ', self._requested_speed, ' requested_voltage: ', self._requested_voltage)
+        #NOTE: getPosition may be changed to getAbsolutePosition
 
-    
-    def execute(self):
-        """
-        Use the PID controller to get closer to the requested position.
-        Set the speed requested of the drive motor.
+        # Calculate the turning motor output from the turning PID controller.
+        turnOutput = self.turningPIDController.calculate(
+            self.turningEncoder.getAbsolutePosition(), state.angle.degrees()
+        )
 
-        Called every robot iteration/loop.
-        """
-        # Calculate the error using the current voltage and the requested voltage.
-        # DO NOT use the #self.get_voltage function here. It has to be the raw voltage.
-        Angle1_0 = self.get_degree()
-        Angle1 = self.degree_to_voltage(Angle1_0)
-        Angle2 = self.degree_to_voltage(self._requested_angle)
-        error = self._pid_controller.calculate(Angle1, Angle2)
-        ## Does the first value need to be set to subtract the zero position
+        turnFeedforward = self.turnFeedforward.calculate(
+            self.turningPIDController.getSetpoint().velocity
+        )
 
-        # Set the output 0 as the default value
-        output = 0
-        # If the error is not tolerable, set the output to the error.
-        # Else, the output will stay at zero.
-        if not self._pid_controller.atSetpoint():
-            # Use max-min to clamped the output between -1 and 1.
-            output = max(min(error, 1), -1)
-
-        #rotate_speed = (output / 360) * 5
-        # Put the output to the dashboard
-        #print(output)
-        #self.sd.putNumber('drive/%s/output' % self.sd_prefix, output)
-        #print("position = ", self.encoder.getAbsolutePosition())
-        #print("requestedAngle = ", self._requested_angle)
-        #print(output)
-
-        # Set the output as the rotateMotor's voltage / also move the rotational motors
-        ## Convert output to voltage value
-        self.rotateMotor.set(output)
-
-        # Set the requested speed as the driveMotor's voltage
-        self.driveMotor.set(self._requested_speed)
-
-        #self.update_smartdash()
-'''
-    def update_smartdash(self):
-        """
-        Output a bunch on internal variables for debugging purposes.
-        """
-        self.sd.putNumber('drive/%s/degrees' % self.sd_prefix, self.voltage_to_degrees(self.get_voltage()))
-
-        if self.debugging.getBoolean(False):
-            self.sd.putNumber('drive/%s/requested_voltage' % self.sd_prefix, self._requested_voltage)
-            self.sd.putNumber('drive/%s/requested_speed' % self.sd_prefix, self._requested_speed)
-            self.sd.putNumber('drive/%s/raw voltage' % self.sd_prefix, self.encoder.getVoltage())  # DO NOT USE self.get_voltage() here
-            self.sd.putNumber('drive/%s/average voltage' % self.sd_prefix, self.encoder.getAverageVoltage())
-            self.sd.putNumber('drive/%s/encoder_zero' % self.sd_prefix, self.encoder_zero)
-
-            self.sd.putNumber('drive/%s/PID Setpoint' % self.sd_prefix, self._pid_controller.getSetpoint())
-            self.sd.putNumber('drive/%s/PID Error' % self.sd_prefix, self._pid_controller.getPositionError())
-            self.sd.putBoolean('drive/%s/PID isAligned' % self.sd_prefix, self._pid_controller.atSetpoint())
-
-            self.sd.putBoolean('drive/%s/allow_reverse' % self.sd_prefix, self.allow_reverse)
-'''
+        self.driveMotor.setVoltage(driveOutput + driveFeedforward)
+        self.turningMotor.setVoltage(turnOutput + turnFeedforward)
