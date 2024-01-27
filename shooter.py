@@ -29,23 +29,16 @@ class ShootModule:
         # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
 
         # NOTE: Need to determine if this is the right distance per pulse value (from user guide it shows 42 counts per revolution)
-        self.driveEncoder.setVelocityConversionFactor(
-            math.tau * kWheelRadius / kVEncoderResolution
-        )
 
-        self.turningPIDController.enableContinuousInput(-math.pi, math.pi)
 
-    def getState(self) -> wpimath.kinematics.SwerveModuleState:
-        """Returns the current state of the module.
+       
 
-        :returns: The current state of the module.
-        """
-        # NOTE: Need to determine if getVelocity value aligns with the expected value vs getRate
-        return wpimath.kinematics.SwerveModuleState(
-            self.driveEncoder.getVelocity(),
-            wpimath.geometry.Rotation2d(self.turningEncoder.getAbsolutePosition()),
-        )
+    
     def shootingmotor(self):
         self.shootMotor1ID.set(1)
         self.shootMotor2ID.set(2) 
+
+    def stopmotor(self):
+        self.shootMotor1ID.set(1)
+        self.shootMotor2ID.set(2)
 
