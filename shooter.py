@@ -23,9 +23,9 @@ class ShootModule:
 
         # NOTE: need to confirm output from SparkMaxAbsoluteEncoder - may shift to Relative Encoder
         ## No longer required 
-        self.shootMotor1ID = 
-        self.shootMotor2ID = 
-
+        self.shootMotor1ID = WPI_TalonSRX(14)
+        self.shootMotor2ID = WPI_TalonSRX(15)
+        
         # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
 
         # NOTE: Need to determine if this is the right distance per pulse value (from user guide it shows 42 counts per revolution)
@@ -45,3 +45,7 @@ class ShootModule:
             self.driveEncoder.getVelocity(),
             wpimath.geometry.Rotation2d(self.turningEncoder.getAbsolutePosition()),
         )
+    def shootingmotor(self):
+        self.shootMotor1ID.set(1)
+        self.shootMotor2ID.set(2) 
+
