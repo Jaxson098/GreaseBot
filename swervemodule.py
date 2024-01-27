@@ -13,8 +13,9 @@ import wpimath.trajectory
 from phoenix5.sensors import CANCoder
 from rev import CANSparkMax
 
-kWheelRadius = 0.0508
+kWheelRadius = 0.0508 # In meters
 kEncoderResolution = 4096
+kVEncoderResolution = 42
 kModuleMaxAngularVelocity = math.pi
 kModuleMaxAngularAcceleration = math.tau
 
@@ -85,13 +86,15 @@ class SwerveModule:
         """
 
         # NOTE: need to confirm output from SparkMaxAbsoluteEncoder - may shift to Relative Encoder
+        ## No longer required 
         self.driveMotor = CANSparkMax(driveMotorID, CANSparkMax.MotorType.kBrushless)
         self.turningMotor = CANSparkMax(turningMotorID, CANSparkMax.MotorType.kBrushless)
         self.driveEncoder = self.driveMotor.getEncoder()
         self.turningEncoder = CANCoder(turningEncoderID, "rio")
 
-        # NOTE: can we use the wpilib.encoder library for these encoders
+        # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
 
+        # NOTE: This is the values we need to tweak 99, 102, 114, & 115
         # Gains are for example purposes only - must be determined for your own robot!
         self.drivePIDController = wpimath.controller.PIDController(1, 0, 0)
 
@@ -107,6 +110,7 @@ class SwerveModule:
         )
 
         # Gains are for example purposes only - must be determined for your own robot!
+        # NOTE: To review
         self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(1, 3)
         self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(1, 0.5)
 
@@ -114,9 +118,9 @@ class SwerveModule:
         # distance traveled for one rotation of the wheel divided by the encoder
         # resolution.
 
-        # NOTE: Need to determine if this is the right distance per pulse value
+        # NOTE: Need to determine if this is the right distance per pulse value (from user guide it shows 42 counts per revolution)
         self.driveEncoder.setVelocityConversionFactor(
-            math.tau * kWheelRadius / kEncoderResolution
+            math.tau * kWheelRadius / kVEncoderResolution
         )
 
         # Set the distance (in this case, angle) in radians per pulse for the turning encoder.
@@ -180,7 +184,7 @@ class SwerveModule:
 
         # Calculate the turning motor output from the turning PID controller.
         turnOutput = self.turningPIDController.calculate(
-            self.turningEncoder.getDistance(), state.angle.radians()
+            self.turningEncoder.getAbsolutePosition(), state.angle.radians()
         )
 
         turnFeedforward = self.turnFeedforward.calculate(
