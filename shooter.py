@@ -39,6 +39,6 @@ class ShootModule:
         self.shootMotor2ID.set(2) 
 
     def stopmotor(self):
-        self.shootMotor1ID.set(1)
-        self.shootMotor2ID.set(2)
+        self.shootMotor1ID.set(0)
+        self.shootMotor2ID.set(0)
 
