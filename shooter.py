@@ -31,10 +31,10 @@ class ShootModule:
         # NOTE: Need to determine if this is the right distance per pulse value (from user guide it shows 42 counts per revolution)
 
 
-       
+   def   
 
     
-    def shootingmotor(self):
+    def speakershootmotor(self):
         self.shootMotor1ID.set(1)
         self.shootMotor2ID.set(2) 
 
