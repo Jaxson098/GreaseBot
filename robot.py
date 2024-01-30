@@ -17,6 +17,7 @@ import wpimath.filter
 import wpimath.controller
 from wpimath.kinematics import SwerveModuleState
 import drivetrain
+import shooter
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -25,6 +26,7 @@ class MyRobot(wpilib.TimedRobot):
         self.controller = wpilib.Joystick(2)
         #self.controller = wpilib.XboxController(0)
         self.swerve = drivetrain.Drivetrain()
+        self.shooter = shooter.ShootModule()
 
         # get the default instance of NetworkTables
         nt = ntcore.NetworkTableInstance.getDefault()
@@ -44,6 +46,10 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopPeriodic(self) -> None:
         #self.pub.set([frontLeftState,frontRightState,backLeftState,backRightState])
+        if self.controller.ge:
+            self.shooter.shootingmotor()
+        if self.controller.getSquareButtonReleased:
+            self.shooter.stopmotor()
         self.driveWithJoystick(True)
 
     def driveWithJoystick(self, fieldRelative: bool) -> None:
@@ -52,7 +58,7 @@ class MyRobot(wpilib.TimedRobot):
         # NOTE: Check if we need inversion here
         xSpeed = (
             -self.xspeedLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(1), 0.06)
+                wpimath.applyDeadband(self.controller.getRawAxis(1), 0.5)
             )
             * drivetrain.kMaxSpeed
         )
@@ -63,7 +69,7 @@ class MyRobot(wpilib.TimedRobot):
         # NOTE: Check if we need inversion here
         ySpeed = (
             -self.yspeedLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(5), 0.06)
+                wpimath.applyDeadband(self.controller.getRawAxis(5), 0.5)
             )
             * drivetrain.kMaxSpeed
         )
@@ -74,9 +80,9 @@ class MyRobot(wpilib.TimedRobot):
         # the right by default.
         rot = (
             -self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(2), 0.06)
+                wpimath.applyDeadband(self.controller.getRawAxis(2), 0.5)
             )
             * drivetrain.kMaxSpeed
         )
 
-        self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
