@@ -24,6 +24,7 @@ class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
         self.controller = wpilib.Joystick(2)
+        #self.controller = wpilib.PS4Controller(2)
         #self.controller = wpilib.XboxController(0)
         self.swerve = drivetrain.Drivetrain()
         self.shooter = shooter.ShootModule()
@@ -46,11 +47,11 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopPeriodic(self) -> None:
         #self.pub.set([frontLeftState,frontRightState,backLeftState,backRightState])
-        if self.controller.ge:
+        if self.controller.getRawButtonPressed(1):
             self.shooter.shootingmotor()
-        if self.controller.getSquareButtonReleased:
+        if self.controller.getRawButtonPressed(2):
             self.shooter.stopmotor()
-        self.driveWithJoystick(True)
+        #self.driveWithJoystick(True)
 
     def driveWithJoystick(self, fieldRelative: bool) -> None:
         # Get the x speed. We are inverting this because Xbox controllers return
@@ -85,4 +86,4 @@ class MyRobot(wpilib.TimedRobot):
             * drivetrain.kMaxSpeed
         )
 
-        #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
