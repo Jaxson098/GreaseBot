@@ -13,6 +13,7 @@ import wpimath.controller
 import drivetrain
 
 
+
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
@@ -63,6 +64,25 @@ class MyRobot(wpilib.TimedRobot):
                 wpimath.applyDeadband(self.controller.getRawAxis(2), 0.02)
             )
             * drivetrain.kMaxSpeed
-        )
+        ) 
+
+
+
+        def main():
+    # Connect to the NetworkTables server running on the robot
+    NetworkTables.initialize(server='roborio-4750-frc.local')  # Replace 'TEAM' with your actual team number
+
+    # Get a reference to the "example" table
+    example_table = NetworkTables.getTable('example')
+
+    # Write a value to the "myValue" key
+    example_table.putNumber('myValue', 42.0)
+
+    # Read the value from the "myValue" key
+    retrieved_value = example_table.getNumber('myValue', 0.0)
+    print("Retrieved Value:", retrieved_value)
+
+if __name__ == '__main__':
+    main()
 
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
