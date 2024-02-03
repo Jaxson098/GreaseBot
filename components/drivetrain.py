@@ -111,6 +111,9 @@ class Drivetrain:
             ),
         )
 
+        #print("kinematics", self.frontLeftLocation, self.frontRightLocation, self.backLeftLocation, self.backRightLocation)
+        #print("odometry", self.frontLeft.getPosition(), self.frontRight.getPosition(), self.backLeft.getPosition(), self.backRight.getPosition())
+
         self.gyro.reset()
 
     def drive(
@@ -129,6 +132,7 @@ class Drivetrain:
         :param fieldRelative: Whether the provided x and y speeds are relative to the field.
         :param periodSeconds: Time
         """
+
         swerveModuleStates = self.kinematics.toSwerveModuleStates(
             wpimath.kinematics.ChassisSpeeds.discretize(
                 wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
