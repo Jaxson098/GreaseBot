@@ -90,6 +90,7 @@ class SwerveModule:
         self.turningMotor = CANSparkMax(turningMotorID, CANSparkMax.MotorType.kBrushless)
         self.driveEncoder = self.driveMotor.getEncoder()
         self.turningEncoder = CANCoder(turningEncoderID, "rio")
+        print(turningEncoderID, self.turningEncoder.getPosition())
         #self.turningEncoder = CANCoderConfiguration()
         #self.turningEncoder.sensorCoefficent = math.tau / kEncoderResolution
         #self.configs = CANCoderConfiguration()
@@ -101,11 +102,11 @@ class SwerveModule:
 
         # NOTE: This is the values we need to tweak 99, 102, 114, & 115
         # Gains are for example purposes only - must be determined for your own robot!
-        self.drivePIDController = wpimath.controller.PIDController(0, 0, 0)
+        self.drivePIDController = wpimath.controller.PIDController(1, 0, 0)
 
         # Gains are for example purposes only - must be determined for your own robot!
         self.turningPIDController = wpimath.controller.ProfiledPIDController(
-            1,
+            0,
             0,
             0,
             wpimath.trajectory.TrapezoidProfile.Constraints(
@@ -118,7 +119,7 @@ class SwerveModule:
         # NOTE: To review
         # https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/feedforward.html
         # FeedForward converts
-        self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0, 0)
+        self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0.5, 1)
         self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0.5, 1)
 
         # Set the distance per pulse for the drive encoder. We can simply use the
@@ -171,7 +172,7 @@ class SwerveModule:
         :returns: The current position of the module.
         """
         return wpimath.kinematics.SwerveModulePosition(
-            self.driveEncoder.getVelocity(),
+            self.driveEncoder.getVelocity(), 
             wpimath.geometry.Rotation2d(self.degree_to_rad(self.turningEncoder.getPosition())),
         )
 
@@ -213,7 +214,7 @@ class SwerveModule:
             self.turningPIDController.getSetpoint().velocity
         )
 
-        print(self.turningPIDController.getSetpoint())
+        #print(self.turningEncoder.getPosition())
 
         self.driveMotor.setVoltage(driveOutput + driveFeedforward)
         self.turningMotor.setVoltage(turnOutput + turnFeedforward)
