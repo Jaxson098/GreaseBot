@@ -102,7 +102,7 @@ class SwerveModule:
 
         # NOTE: This is the values we need to tweak 99, 102, 114, & 115
         # Gains are for example purposes only - must be determined for your own robot!
-        self.drivePIDController = wpimath.controller.PIDController(1, 0, 0)
+        self.drivePIDController = wpimath.controller.PIDController(0, 0, 0)
 
         # Gains are for example purposes only - must be determined for your own robot!
         self.turningPIDController = wpimath.controller.ProfiledPIDController(
@@ -119,8 +119,8 @@ class SwerveModule:
         # NOTE: To review
         # https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/feedforward.html
         # FeedForward converts
-        self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0.5, 1)
-        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0.5, 1)
+        self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(1, 0)
+        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0, 0)
 
         # Set the distance per pulse for the drive encoder. We can simply use the
         # distance traveled for one rotation of the wheel divided by the encoder
