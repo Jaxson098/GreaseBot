@@ -11,7 +11,13 @@ import wpimath.kinematics
 import swervemodule
 
 kMaxSpeed = 3.0  # 3 meters per second
+kRMaxSpeed = 1.0
+kTMaxSpeed = 2.0
 kMaxAngularSpeed = math.pi  # 1/2 rotation per second
+frontLeftZero = 0
+frontRightZero = 0
+backLeftZero = 0
+backRightZero = 0
 
 
 class Drivetrain:
@@ -22,11 +28,12 @@ class Drivetrain:
     def __init__(self) -> None:
         # NOTE: May need to tweak the center measurements 44.5mm rough measurement
         # NOTE: EVERYTHING IS MEASURE IN METERS! 
+        # NOTE: Update center measure distance from each module
 
-        self.frontLeftLocation = wpimath.geometry.Translation2d(0.445, 0.445)
-        self.frontRightLocation = wpimath.geometry.Translation2d(0.445, -0.445)
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.445, 0.445)
-        self.backRightLocation = wpimath.geometry.Translation2d(-0.445, -0.445)
+        self.frontLeftLocation = wpimath.geometry.Translation2d(0.36, 0.36)
+        self.frontRightLocation = wpimath.geometry.Translation2d(0.36, -0.36)
+        self.backLeftLocation = wpimath.geometry.Translation2d(-0.36, 0.36)
+        self.backRightLocation = wpimath.geometry.Translation2d(-0.36, -0.36)
 
         self.frontLeft = swervemodule.SwerveModule(4, 3, 4, 13)
         self.frontRight = swervemodule.SwerveModule(7, 8, 7, 10)
@@ -64,35 +71,12 @@ class Drivetrain:
             - Rotation Motor: 6
             - Drive Encoder: 5
             - Rotation Encoder: 12
-            
-        # Drive Motors
-        self.frontLeftModule_driveMotor = CANSparkMax(4, CANSparkMax.MotorType.kBrushless)
-        self.frontRightModule_driveMotor = CANSparkMax(7, CANSparkMax.MotorType.kBrushless)
-        self.rearLeftModule_driveMotor = CANSparkMax(2, CANSparkMax.MotorType.kBrushless)
-        self.rearRightModule_driveMotor = CANSparkMax(5, CANSparkMax.MotorType.kBrushless)
-        
-        # Rotate Motors
-        self.frontLeftModule_rotateMotor = CANSparkMax(3, CANSparkMax.MotorType.kBrushless)
-        self.frontRightModule_rotateMotor = CANSparkMax(8, CANSparkMax.MotorType.kBrushless)
-        self.rearLeftModule_rotateMotor = CANSparkMax(1, CANSparkMax.MotorType.kBrushless)
-        self.rearRightModule_rotateMotor = CANSparkMax(6, CANSparkMax.MotorType.kBrushless)
-
-        # Rotation Encoders
-        self.frontLeftModule_encoder = CANCoder(13, "rio")
-        self.frontRightModule_encoder = CANCoder(10, "rio")
-        self.rearLeftModule_encoder = CANCoder(11, "rio")
-        self.rearRightModule_encoder = CANCoder(12, "rio")
-
-        # Drive Encoders - check if we need absolute or relative encoder
-        self.frontLeftModule_drive_encoder = SparkMaxAbsoluteEncoder(4)
-        self.frontRightModule_drive_encoder = SparkMaxAbsoluteEncoder(7)
-        self.rearLeftModule_drive_encoder = SparkMaxAbsoluteEncoder(2)
-        self.rearRightModule_drive_encoder = SparkMaxAbsoluteEncoder(5)
 
         '''
 
         self.gyro = wpilib.AnalogGyro(0)
 
+        #NOTE: Just defining the fixed kinematics of the bot
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
             self.frontLeftLocation,
             self.frontRightLocation,
@@ -100,6 +84,8 @@ class Drivetrain:
             self.backRightLocation,
         )
 
+        #NOTE: getPosition - need to determine position value - velocity and angle -
+        #NOTE: Need to understand expected units/values returned - is it meters & radians?
         self.odometry = wpimath.kinematics.SwerveDrive4Odometry(
             self.kinematics,
             self.gyro.getRotation2d(),
@@ -158,3 +144,7 @@ class Drivetrain:
                 self.backRight.getPosition(),
             ),
         )
+    
+    def alignment(self) -> None:
+        '''Updates the wheel alignment for robot to zero'''
+        #Leverage Network Tables to report out each wheel position
