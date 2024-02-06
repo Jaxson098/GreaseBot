@@ -13,25 +13,32 @@ import wpimath.controller
 import drivetrain
 
 
-
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
         self.controller = wpilib.Joystick(2)
+        #self.controller = wpilib.PS4Controller(2)
         #self.controller = wpilib.XboxController(0)
         self.swerve = drivetrain.Drivetrain()
 
         # Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
-        self.xspeedLimiter = wpimath.filter.SlewRateLimiter(3)
-        self.yspeedLimiter = wpimath.filter.SlewRateLimiter(3)
-        self.rotLimiter = wpimath.filter.SlewRateLimiter(3)
+        # Speed limiters
 
+        self.xspeedLimiter = wpimath.filter.SlewRateLimiter(3)
+        self.yspeedLimiter = wpimath.filter.SlewRateLimiter(1)
+        self.rotLimiter = wpimath.filter.SlewRateLimiter(0.5)
+
+        # Align the wheels to 0
+        #self.swerve.alignment()
+
+    #FUTURE
     def autonomousPeriodic(self) -> None:
-        self.driveWithJoystick(False)
+        #self.driveWithJoystick(False)
         self.swerve.updateOdometry()
 
     def teleopPeriodic(self) -> None:
-        self.driveWithJoystick(True)
+        self.driveWithJoystick(False)
+        #self.shootWithJoystick(False)
 
     def driveWithJoystick(self, fieldRelative: bool) -> None:
         # Get the x speed. We are inverting this because Xbox controllers return
@@ -39,7 +46,7 @@ class MyRobot(wpilib.TimedRobot):
         # NOTE: Check if we need inversion here
         xSpeed = (
             -self.xspeedLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(1), 0.02)
+                wpimath.applyDeadband(self.controller.getRawAxis(1), 0.1)
             )
             * drivetrain.kMaxSpeed
         )
@@ -50,9 +57,9 @@ class MyRobot(wpilib.TimedRobot):
         # NOTE: Check if we need inversion here
         ySpeed = (
             -self.yspeedLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(5), 0.02)
+                wpimath.applyDeadband(self.controller.getRawAxis(2), 0.2)
             )
-            * drivetrain.kMaxSpeed
+            * drivetrain.kTMaxSpeed
         )
 
         # Get the rate of angular rotation. We are inverting this because we want a
@@ -61,28 +68,10 @@ class MyRobot(wpilib.TimedRobot):
         # the right by default.
         rot = (
             -self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(2), 0.02)
+                wpimath.applyDeadband(self.controller.getRawAxis(4), 0.4)
             )
-            * drivetrain.kMaxSpeed
-        ) 
+            * drivetrain.kRMaxSpeed
+        )
 
-
-
-        def main():
-    # Connect to the NetworkTables server running on the robot
-    NetworkTables.initialize(server='roborio-4750-frc.local')  # Replace 'TEAM' with your actual team number
-
-    # Get a reference to the "example" table
-    example_table = NetworkTables.getTable('example')
-
-    # Write a value to the "myValue" key
-    example_table.putNumber('myValue', 42.0)
-
-    # Read the value from the "myValue" key
-    retrieved_value = example_table.getNumber('myValue', 0.0)
-    print("Retrieved Value:", retrieved_value)
-
-if __name__ == '__main__':
-    main()
-
-        self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        self.swerve.drive(xSpeed, ySpeed, 0, fieldRelative, self.getPeriod())
