@@ -11,13 +11,16 @@ import wpimath.geometry
 import wpimath.controller
 import wpimath.trajectory
 from phoenix5.sensors import CANCoder
+import phoenix5.sensors 
 from rev import CANSparkMax
+import wpimath.units
 
 kWheelRadius = 0.0508 # In meters
 kEncoderResolution = 4096
-kVEncoderResolution = 42
-kModuleMaxAngularVelocity = math.pi
-kModuleMaxAngularAcceleration = math.tau
+kVEncoderResolution = 42 #Need to confirm
+kModuleMaxAngularVelocity = math.pi #need to understand how this applies to the motor
+kModuleMaxAngularAcceleration = math.tau #need to understand how this applies to the motor
+
 
 
 class SwerveModule:
@@ -58,30 +61,6 @@ class SwerveModule:
             - Rotation Motor: 6
             - Drive Encoder: 12
             - Rotation Encoder: 6
-            
-        # Drive Motors
-        self.frontLeftModule_driveMotor = CANSparkMax(4, CANSparkMax.MotorType.kBrushless)
-        self.frontRightModule_driveMotor = CANSparkMax(7, CANSparkMax.MotorType.kBrushless)
-        self.rearLeftModule_driveMotor = CANSparkMax(2, CANSparkMax.MotorType.kBrushless)
-        self.rearRightModule_driveMotor = CANSparkMax(5, CANSparkMax.MotorType.kBrushless)
-        
-        # Rotate Motors
-        self.frontLeftModule_rotateMotor = CANSparkMax(3, CANSparkMax.MotorType.kBrushless)
-        self.frontRightModule_rotateMotor = CANSparkMax(8, CANSparkMax.MotorType.kBrushless)
-        self.rearLeftModule_rotateMotor = CANSparkMax(1, CANSparkMax.MotorType.kBrushless)
-        self.rearRightModule_rotateMotor = CANSparkMax(6, CANSparkMax.MotorType.kBrushless)
-
-        # Encoders
-        self.frontLeftModule_encoder = CANCoder(13, "rio")
-        self.frontRightModule_encoder = CANCoder(10, "rio")
-        self.rearLeftModule_encoder = CANCoder(11, "rio")
-        self.rearRightModule_encoder = CANCoder(12, "rio")
-
-        # Rotation Encoders - check if we need absolute or relative encoder
-        self.frontLeftModule_rot_encoder = SparkMaxAbsoluteEncoder(3)
-        self.frontRightModule_rot_encoder = SparkMaxAbsoluteEncoder(8)
-        self.rearLeftModule_rot_encoder = SparkMaxAbsoluteEncoder(1)
-        self.rearRightModule_rot_encoder = SparkMaxAbsoluteEncoder(6)
 
         """
 
@@ -91,28 +70,35 @@ class SwerveModule:
         self.turningMotor = CANSparkMax(turningMotorID, CANSparkMax.MotorType.kBrushless)
         self.driveEncoder = self.driveMotor.getEncoder()
         self.turningEncoder = CANCoder(turningEncoderID, "rio")
+        print(turningEncoderID, self.turningEncoder.getPosition())
+        #self.turningEncoder.configFeedbackCoefficient(sensorCoefficient=(2 * math.pi / 4096), unitString="rad", sensortimeBase=1)
+        #self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", 1)
+        #self.turningEncoder.configFeedbackCoefficient(self, sensorCoefficient=(2 * math.pi / 4096), unitString="rad", sensorTimeBase=1)
+        #self.turningEncoder.configFeedbackCoefficient(self, (2 * math.pi / 4096), "rad", 1)
+        self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", phoenix5.sensors.SensorTimeBase(1))
+        self.turningEncoder.configAbsoluteSensorRange(phoenix5.sensors.AbsoluteSensorRange(1))
 
         # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
 
         # NOTE: This is the values we need to tweak 99, 102, 114, & 115
         # Gains are for example purposes only - must be determined for your own robot!
-        self.drivePIDController = wpimath.controller.PIDController(1, 0, 0)
+        self.drivePIDController = wpimath.controller.PIDController(0, 0, 0)
 
         # Gains are for example purposes only - must be determined for your own robot!
         self.turningPIDController = wpimath.controller.ProfiledPIDController(
-            1,
+            0.05,
             0,
             0,
             wpimath.trajectory.TrapezoidProfile.Constraints(
                 kModuleMaxAngularVelocity,
-                kModuleMaxAngularAcceleration,
+                kModuleMaxAngularAcceleration, #How is the contraint applied
             ),
         )
 
         # Gains are for example purposes only - must be determined for your own robot!
         # NOTE: To review
         self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(1, 3)
-        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(1, 0.5)
+        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0.1, 0.5)
 
         # Set the distance per pulse for the drive encoder. We can simply use the
         # distance traveled for one rotation of the wheel divided by the encoder
@@ -139,10 +125,10 @@ class SwerveModule:
 
         :returns: The current state of the module.
         """
-        # NOTE: Need to determine if getVelocity value aligns with the expected value vs getRate
+        print("Get State:", self.turningEncoder.getDeviceNumber, self.turningEncoder.getPosition())
         return wpimath.kinematics.SwerveModuleState(
             self.driveEncoder.getVelocity(),
-            wpimath.geometry.Rotation2d(self.turningEncoder.getAbsolutePosition()),
+            wpimath.geometry.Rotation2d(self.turningEncoder.getPosition()),
         )
 
     def getPosition(self) -> wpimath.kinematics.SwerveModulePosition:
@@ -150,9 +136,10 @@ class SwerveModule:
 
         :returns: The current position of the module.
         """
+        print("Get Position:", self.turningEncoder.getDeviceNumber, self.turningEncoder.getPosition())
         return wpimath.kinematics.SwerveModulePosition(
             self.driveEncoder.getVelocity(),
-            wpimath.geometry.Rotation2d(self.turningEncoder.getAbsolutePosition()),
+            wpimath.geometry.Rotation2d(self.turningEncoder.getPosition()),
         )
 
     def setDesiredState(
@@ -162,8 +149,8 @@ class SwerveModule:
 
         :param desiredState: Desired state with speed and angle.
         """
-
-        encoderRotation = wpimath.geometry.Rotation2d(self.turningEncoder.getAbsolutePosition())
+        #NOTE: Need to determine what the right units are for the rotation to be set - most likely Radians
+        encoderRotation = wpimath.geometry.Rotation2d(self.turningEncoder.getPosition())
 
         # Optimize the reference state to avoid spinning further than 90 degrees
         state = wpimath.kinematics.SwerveModuleState.optimize(
@@ -184,7 +171,7 @@ class SwerveModule:
 
         # Calculate the turning motor output from the turning PID controller.
         turnOutput = self.turningPIDController.calculate(
-            self.turningEncoder.getAbsolutePosition(), state.angle.radians()
+            self.turningEncoder.getPosition(), state.angle.radians() # NOTE: radian or degree this needs to be radians
         )
 
         turnFeedforward = self.turnFeedforward.calculate(
@@ -193,3 +180,7 @@ class SwerveModule:
 
         self.driveMotor.setVoltage(driveOutput + driveFeedforward)
         self.turningMotor.setVoltage(turnOutput + turnFeedforward)
+
+        #print(self.driveMotor.getDeviceId(), driveOutput, driveFeedforward)
+        #print(self.turningMotor.getDeviceId(), self.turningPIDController.getSetpoint().velocity, self.turningEncoder.getPosition(), state.angle, turnOutput, turnFeedforward)
+        print(self.turningMotor.getDeviceId(), self.turningEncoder.getAbsolutePosition(), self.turningEncoder.getPosition())
