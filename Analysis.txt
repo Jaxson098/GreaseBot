@@ -1,0 +1,294 @@
+BERT Swerve Review
+
+>>> werveModuleStates = kinematics.toSwerveModuleStates(wpimath.kinematics.ChassisSpeeds.discretize(wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(-1,0,0,0)))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: fromFieldRelativeSpeeds(): incompatible function arguments. The following argument types are supported:
+    1. (vx: wpimath.units.meters_per_second, vy: wpimath.units.meters_per_second, omega: wpimath.units.radians_per_second, robotAngle: wpimath.geometry._geometry.Rotation2d) -> wpimath.kinematics._kinematics.ChassisSpeeds
+    2. (fieldRelativeSpeeds: wpimath.kinematics._kinematics.ChassisSpeeds, robotAngle: wpimath.geometry._geometry.Rotation2d) -> wpimath.kinematics._kinematics.ChassisSpeeds
+
+
+xspeedLimiter = wpimath.filter.SlewRateLimiter(3)
+>>> yspeedLimiter = wpimath.filter.SlewRateLimiter(3)
+>>> rotLimiter = wpimath.filter.SlewRateLimiter(3)
+>>> xSpeed = xspeedLimiter.calculate(wpimath.applyDeadband(-1,0.02) * 3
+... )
+>>> print(xSpeed)
+-3.0
+>>> 
+
+
+>>> swerveModuleStates = kinematics.toSwerveModuleStates(wpimath.kinematics.ChassisSpeeds.discretize(wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed,xSpeed,xSpeed, wpimath.geometry.Rotation2d(100)))
+... )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: discretize(): incompatible function arguments. The following argument types are supported:
+    1. (vx: wpimath.units.meters_per_second, vy: wpimath.units.meters_per_second, omega: wpimath.units.radians_per_second, dt: wpimath.units.seconds) -> wpimath.kinematics._kinematics.ChassisSpeeds
+    2. (continuousSpeeds: wpimath.kinematics._kinematics.ChassisSpeeds, dt: wpimath.units.seconds) -> wpimath.kinematics._kinematics.ChassisSpeeds
+
+Invoked with: ChassisSpeeds(vx=-1.067860, vy=-4.106054, omega=-3.000000)
+
+Getting a returned value for Chassis Speeds, but
+TypeError: discretize(): incompatible function arguments. The following argument types are supported:
+    1. (vx: wpimath.units.meters_per_second, vy: wpimath.units.meters_per_second, omega: wpimath.units.radians_per_second, dt: wpimath.units.seconds) -> wpimath.kinematics._kinematics.ChassisSpeeds
+    2. (continuousSpeeds: wpimath.kinematics._kinematics.ChassisSpeeds, dt: wpimath.units.seconds) -> wpimath.kinematics._kinematics.ChassisSpeeds
+
+Discretize = https://robotpy.readthedocs.io/projects/robotpy/en/stable/wpimath.kinematics/ChassisSpeeds.html
+staticdiscretize(*args, **kwargs)
+Overloaded function.
+1. discretize(vx: wpimath.units.meters_per_second, vy: wpimath.units.meters_per_second, omega: wpimath.units.radians_per_second, dt: wpimath.units.seconds) -> wpimath.kinematics._kinematics.ChassisSpeeds
+Disretizes a continuous-time chassis speed.
+This function converts a continuous-time chassis speed into a discrete-time one such that when the discrete-time chassis speed is applied for one timestep, the robot moves as if the velocity components are independent (i.e., the robot moves v_x * dt along the x-axis, v_y * dt along the y-axis, and omega * dt around the z-axis).
+This is useful for compensating for translational skew when translating and rotating a swerve drivetrain.
+Parameters
+:
+* vx – Forward velocity.
+* vy – Sideways velocity.
+* omega – Angular velocity.
+* dt – The duration of the timestep the speeds should be applied for.
+Returns
+:
+Discretized ChassisSpeeds.
+2. discretize(continuousSpeeds: wpimath.kinematics._kinematics.ChassisSpeeds, dt: wpimath.units.seconds) -> wpimath.kinematics._kinematics.ChassisSpeeds
+Disretizes a continuous-time chassis speed.
+This function converts a continuous-time chassis speed into a discrete-time one such that when the discrete-time chassis speed is applied for one timestep, the robot moves as if the velocity components are independent (i.e., the robot moves v_x * dt along the x-axis, v_y * dt along the y-axis, and omega * dt around the z-axis).
+This is useful for compensating for translational skew when translating and rotating a swerve drivetrain.
+Parameters
+:
+* continuousSpeeds – The continuous speeds.
+* dt – The duration of the timestep the speeds should be applied for.
+Returns
+:
+Discretized ChassisSpeeds.
+
+    
+
+    rot = (
+            -self.rotLimiter.calculate(
+                wpimath.applyDeadband(self.controller.getRawAxis(2), 0.02)
+            )
+            * drivetrain.kMaxSpeed
+        )
+
+OI: Should rotation be set similar to the x & y, when we are looking for radians per sec vs meters per sec
+
+
+https://robotpy.readthedocs.io/projects/robotpy/en/stable/wpimath.units.html - can use this library for all conversions
+
+
+>>> wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, 3)
+(SwerveModuleState(speed=3.000000, angle=-0.428736), SwerveModuleState(speed=2.141945, angle=-0.621503), SwerveModuleState(speed=2.740845, angle=-0.095040), SwerveModuleState(speed=1.760727, angle=-0.148264))
+
+>>> print(swerveModuleStates[0])
+SwerveModuleState(speed=8.114957, angle=-0.428736) *
+>>> print(swerveModuleStates[1])
+SwerveModuleState(speed=5.793929, angle=-0.621503) * 
+>>> print(swerveModuleStates[2])
+SwerveModuleState(speed=7.413948, angle=-0.095040) *
+>>> print(swerveModuleStates[3])
+SwerveModuleState(speed=4.762742, angle=-0.148264)
+
+NOTE: Used to reduce the speeds down proportional to the max speed set
+
+
+>>> state = wpimath.kinematics.SwerveModuleState.optimize(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: optimize(): incompatible function arguments. The following argument types are supported:
+    1. (desiredState: wpimath.kinematics._kinematics.SwerveModuleState, currentAngle: wpimath.geometry._geometry.Rotation2d) -> wpimath.kinematics._kinematics.SwerveModuleState
+
+>>> state = wpimath.kinematics.SwerveModuleState.optimize(swerveModuleStates[0])
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: optimize(): incompatible function arguments. The following argument types are supported:
+    1. (desiredState: wpimath.kinematics._kinematics.SwerveModuleState, currentAngle: wpimath.geometry._geometry.Rotation2d) -> wpimath.kinematics._kinematics.SwerveModuleState
+
+Invoked with: SwerveModuleState(speed=8.114957, angle=-0.428736)
+
+NOTE: Optimize - shifted the angle not to be too crazy
+
+>>> print(turnFeedforward.calculate(turningPIDController.getSetpoint().velocity)
+... )
+-1.062831853071796
+
+NOTE: SimpleMotorFeedForwardMeters calculates the speed of the motor
+
+
+Help on method calculate in module wpimath._controls._controls.controller:
+
+calculate(...) method of wpimath._controls._controls.controller.ProfiledPIDController instance
+    calculate(*args, **kwargs)
+    Overloaded function.
+    
+    1. calculate(self: wpimath._controls._controls.controller.ProfiledPIDController, measurement: float) -> float
+    
+    Returns the next output of the PID controller.
+    
+    :param measurement: The current measurement of the process variable.
+    
+    2. calculate(self: wpimath._controls._controls.controller.ProfiledPIDController, measurement: float, goal: wpimath._controls._controls.trajectory.TrapezoidProfile.State) -> float
+    
+    Returns the next output of the PID controller.
+    
+    :param measurement: The current measurement of the process variable.
+    :param goal:        The new goal of the controller.
+    
+    3. calculate(self: wpimath._controls._controls.controller.ProfiledPIDController, measurement: float, goal: float) -> float
+    
+    Returns the next output of the PID controller.
+    
+    :param measurement: The current measurement of the process variable.
+    :param goal:        The new goal of the controller.
+    
+    4. calculate(self: wpimath._controls._controls.controller.ProfiledPIDController, measurement: float, goal: float, constraints: wpimath._controls._controls.trajectory.TrapezoidProfile.Constraints) -> float
+    
+    Returns the next output of the PID controller.
+    
+    :param measurement: The current measurement of the process variable.
+    :param goal:        The new goal of the controller.
+    :param constraints: Velocity and acceleration constraints for goal.
+
+
+****  Our turnOutput is fed wrong        
+	self.driveMotor.setVoltage(driveOutput + driveFeedforward)
+        self.turningMotor.setVoltage(turnOutput + turnFeedforward)
+
+
+NEXT STEPS:
+
+Need to determine how to set wheels to straighten up
+- Seems like getPosition may be the setting point
+ Need to determine how the robotpy > drivetrain > swerve module translates angle movement to motor voltage
+- We are currently passing the wrong value in to the turningMotor PID that translates to the voltage data.
+Need to determine the Neo Encoder Readout for getVelocity - looking for meters per second
+Need to determine for the ctre encoder - to see if we can get pulse out
+- https://robotpy.readthedocs.io/projects/ctre/en/stable/phoenix5.sensors/CANCoder.html#phoenix5.sensors.CANCoder.getVelocity
+- Will need to initiate the encoders to have the proper output
+- Determine how to do in Python:
+CANCoderConfiguration config;
+// set units of the CANCoder to radians, with velocity being radians per second
+config.sensorCoefficient = 2 * M_PI / 4096.0;
+config.unitString = "rad";
+config.sensorTimeBase = SensorTimeBase::PerSecond;
+cancoder.ConfigAllSettings(config);
+
+std::cout << cancoder.GetPosition() << std::endl; // prints the position of the CANCoder
+std::cout << cancoder.GetVelocity() << std::endl; // prints the velocity recorded by the CANCoder
+
+ErrorCode error = cancoder.GetLastError(); // gets the last error generated by the CANCoder
+CANCoderFaults faults;
+ErrorCode faultsError = cancoder.GetFaults(faults); // fills faults with the current CANCoder faults; returns the last error generated
+
+cancoder.SetStatusFramePeriod(CANCoderStatusFrame_SensorData, 10); // changes the period of the sensor data frame to 10ms
+}
+
+NOTE: May be able to configure through Phoenix tuner
+    - 
+
+Future Update:
+ If the Phoenix 5 API must be used for this device, the device must have 22.X
+ |  firmware. This firmware is available in Tuner X after selecting Phoenix 5 in
+ |  the firmware year dropdown.
+ |  
+ |  :deprecated: This device's Phoenix 5 API is deprecated for removal in the
+ |               2025 season. Users should update to Phoenix 6 firmware and migrate to the
+ |               Phoenix 6 API. A migration guide is available at
+ |               https://v6.docs.ctr-electronics.com/en/stable/docs/migration/migration-guide/index.html.
+ |  
+NOTE: Might be worth updating b/c the help on phoenix5 API is strictly around java calls
+
+
+configAbsoluteSensorRange(...)
+ |      configAbsoluteSensorRange(self: phoenix5._ctre.sensors.CANCoder, absoluteSensorRange: phoenix5._ctre.sensors.AbsoluteSensorRange, timeoutMs: int = 0) -> phoenix5._ctre.ErrorCode
+ |      
+ |      Sets the signage and range of the "Absolute Position" signal.
+ |      Choose unsigned for an absolute range of [0,+1) rotations, [0,360) deg, etc...
+ |      Choose signed for an absolute range of [-0.5,+0.5) rotations, [-180,+180) deg, etc...
+ |      
+ |      :param absoluteSensorRange: Desired Sign/Range for the absolute position register.
+ |      :param timeoutMs:           Timeout value in ms. If nonzero, function will wait for
+ |                                  config success and report an error if it times out.
+ |                                  If zero, no blocking or checking is performed.
+
+
+|  configFeedbackCoefficient(...)
+ |      configFeedbackCoefficient(self: phoenix5._ctre.sensors.CANCoder, sensorCoefficient: float, unitString: str, sensortimeBase: phoenix5._ctre.sensors.SensorTimeBase, timeoutMs: int = 0) -> phoenix5._ctre.ErrorCode
+ |      
+ |      Choose what units you want the API to get/set.  This also impacts the units displayed in Self-Test in Tuner.
+ |      Depending on your mechanism, you may want to scale rotational units (deg, radians, rotations), or scale to a distance (inches, centimeters).
+ |      
+ |      :param sensorCoefficient: Scalar to multiply the CANCoder's native 12-bit resolute sensor. Defaults to 0.087890625 to produce degrees.
+ |      :param unitString:        String holding the unit to report in.  This impacts all routines (except for ConfigMagnetOffset) and the self-test in Tuner.
+ |                                The string value itself is arbitrary.  The max number of letters will depend on firmware versioning, but generally CANCoder
+ |                                supports up to eight letters.  However, common units such as "centimeters" are supported explicitly despite exceeding the eight-letter limit.
+ |                                *                       Default is "deg"
+ |      :param sensortimeBase:    Desired denominator to report velocity in.  This impacts GetVelocity and the reported velocity in self-test in Tuner.
+ |                                Default is "Per Second".
+ |      :param timeoutMs:         Timeout value in ms. If nonzero, function will wait for
+ |                                config success and report an error if it times out.
+ |                                If zero, no blocking or checking is performed.
+ |      
+
+
+turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", phoenix5.sensors.SensorTimeBase(1))
+
+ |  ----------------------------------------------------------------------
+ |  Data and other attributes defined here:
+ |  
+ |  Per100Ms_Legacy = <SensorTimeBase.Per100Ms_Legacy: 0>
+ |  
+ |  PerMinute = <SensorTimeBase.PerMinute: 2>
+ |  
+ |  PerSecond = <SensorTimeBase.PerSecond: 1>
+ |  
+ |  ----------------------------------------------------------------------
+
+Should convert the output from the encoder to radians per second
+
+turningEncoder.configAbsoluteSensorRange(phoenix5.sensors.AbsoluteSensorRange(1))
+
+ |  Data and other attributes defined here:
+ |  
+ |  Signed_PlusMinus180 = <AbsoluteSensorRange.Signed_PlusMinus180: 1>
+ |  
+ |  Unsigned_0_to_360 = <AbsoluteSensorRange.Unsigned_0_to_360: 0>
+
+Should convert the output from the encoder to signed values
+
+
+——————————
+
+>>> turningPIDController.calculate(-0.412464,state.angle.radians())
+0.40743745175425633
+
+
+>>> turnPIDController = wpimath.controller.ProfiledPIDController(1,0,0, wpimath.trajectory.TrapezoidProfile.Constraints(math.pi, math.tau,),)
+>>> turnPIDController2 = wpimath.controller.ProfiledPIDController(0.1,0,0, wpimath.trajectory.TrapezoidProfile.Constraints(math.pi, math.tau,),)
+>>> turnPIDController3 = wpimath.controller.ProfiledPIDController(0.05,0,0, wpimath.trajectory.TrapezoidProfile.Constraints(math.pi, math.tau,),)
+>>> turnPIDController.calculate(-1.89906437695026,-2.356194)
+1.897807739888824
+>>> turnPIDController2.calculate(-1.89906437695026,-2.356194)
+0.1897807739888824
+>>> turnPIDController3.calculate(-1.89906437695026,-2.356194)
+0.0948903869944412
+>>> 
+
+
+
+______________________________________________
+Original WPILIB Swervebot
+
+        self.driveEncoder.setDistancePerPulse(
+            math.tau * kWheelRadius / kEncoderResolution
+        )
+
+        # Set the distance (in this case, angle) in radians per pulse for the turning encoder.
+        # This is the the angle through an entire rotation (2 * pi) divided by the
+        # encoder resolution.
+        self.turningEncoder.setDistancePerPulse(math.tau / kEncoderResolution)
+
+        # Limit the PID Controller's input range between -pi and pi and set the input
+        # to be continuous.
+        self.turningPIDController.enableContinuousInput(-math.pi, math.pi)
+
+NOTE: Using the pulse count to determine distance traveled in radians for rotation & meters for drive
