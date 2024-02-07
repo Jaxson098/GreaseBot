@@ -1,0 +1,14 @@
+# get a topic from a NetworkTableInstance
+# the topic name in this case is the full name
+self.sd = self.inst.getTable("SmartDashboard")
+
+# get a topic from a NetworkTable
+# the topic name in this case is the name within the table;
+# this line and the one above reference the same topic
+self.sd.putNumber("tmotor", self.turningMotor.getDeviceId)
+self.sd.putNumber("dmotor", self.driveMotor.getDeviceId)
+self.sd.putNumber("teposition", self.turningEncoder.getPosition)
+self.sd.putNumber("tffoward", self.turnFeedforward)
+self.sd.putNumber(turnoutput", self.turnOutput)
+self.sd.putNumber("dffoward", self.driveFeedFoward)
+self.sd.putNumber("doutput", self.driveOutput)
