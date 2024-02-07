@@ -1,5 +1,8 @@
 # get a topic from a NetworkTableInstance
 # the topic name in this case is the full name
+
+inst = ntcore.NetworkTableInstance.getDefault()
+
 self.sd = self.inst.getTable("SmartDashboard")
 
 # get a topic from a NetworkTable
