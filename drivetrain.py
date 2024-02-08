@@ -9,7 +9,7 @@ import wpilib
 import wpimath.geometry
 import wpimath.kinematics
 import swervemodule
-
+import ntcore
 kMaxSpeed = 3.0  # 3 meters per second
 kRMaxSpeed = 1.0
 kTMaxSpeed = 2.0
@@ -147,4 +147,13 @@ class Drivetrain:
     
     def alignment(self) -> None:
         '''Updates the wheel alignment for robot to zero'''
-        #Leverage Network Tables to report out each wheel position
+        #Leverage Network Tables to report out each wheel position  
+
+
+nt = ntcore.NetWorkTableInstance.getDefault()
+
+topic = nt.getStructArrayTopic("/SwerveStates", SwerveModuleState)
+def periodic(self): 
+    self.pub.set([swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3]])
+
+
