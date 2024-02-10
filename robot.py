@@ -39,6 +39,8 @@ class MyRobot(wpilib.TimedRobot):
     def teleopPeriodic(self) -> None:
         self.driveWithJoystick(False)
         #self.shootWithJoystick(False)
+        if self.controller.getRawButton(4) == 1:
+            self.swerve.alignment()
 
     def driveWithJoystick(self, fieldRelative: bool) -> None:
         # Get the x speed. We are inverting this because Xbox controllers return
