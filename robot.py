@@ -40,6 +40,7 @@ class MyRobot(wpilib.TimedRobot):
         self.driveWithJoystick(False)
         #self.shootWithJoystick(False)
         if self.controller.getRawButton(4) == 1:
+            self.swerve.drive(0,0,0,0,self.getPeriod())
             self.swerve.alignment()
 
     def driveWithJoystick(self, fieldRelative: bool) -> None:
