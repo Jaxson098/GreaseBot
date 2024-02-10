@@ -77,6 +77,7 @@ class SwerveModule:
         #self.turningEncoder.configFeedbackCoefficient(self, (2 * math.pi / 4096), "rad", 1)
         self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", phoenix5.sensors.SensorTimeBase(1))
         self.turningEncoder.configAbsoluteSensorRange(phoenix5.sensors.AbsoluteSensorRange(1))
+        self.turningEncoder.configSensorDirection(1)
 
         # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
 
@@ -86,7 +87,8 @@ class SwerveModule:
 
         # Gains are for example purposes only - must be determined for your own robot!
         self.turningPIDController = wpimath.controller.ProfiledPIDController(
-            0.05,
+            0.0662,
+            #0.05,
             0,
             0,
             wpimath.trajectory.TrapezoidProfile.Constraints(
@@ -171,7 +173,7 @@ class SwerveModule:
 
         # Calculate the turning motor output from the turning PID controller.
         turnOutput = self.turningPIDController.calculate(
-            self.turningEncoder.getPosition(), state.angle.radians() # NOTE: radian or degree this needs to be radians
+            -self.turningEncoder.getPosition(), state.angle.radians() 
         )
 
         turnFeedforward = self.turnFeedforward.calculate(
@@ -182,5 +184,5 @@ class SwerveModule:
         self.turningMotor.setVoltage(turnOutput + turnFeedforward)
 
         #print(self.driveMotor.getDeviceId(), driveOutput, driveFeedforward)
-        #print(self.turningMotor.getDeviceId(), self.turningPIDController.getSetpoint().velocity, self.turningEncoder.getPosition(), state.angle, turnOutput, turnFeedforward)
-        print(self.turningMotor.getDeviceId(), self.turningEncoder.getAbsolutePosition(), self.turningEncoder.getPosition())
+        print(self.turningMotor.getDeviceId(), self.turningPIDController.getSetpoint().velocity, self.turningEncoder.getPosition(), state.angle.radians(), turnOutput, turnFeedforward)
+        #print(self.turningMotor.getDeviceId(), self.turningEncoder.getAbsolutePosition(), self.turningEncoder.getPosition())
