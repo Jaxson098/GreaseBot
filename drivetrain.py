@@ -153,11 +153,15 @@ class Drivetrain:
     def alignment(self) -> None:
         '''Updates the wheel alignment for robot to zero'''
         #Leverage Network Tables to report out each wheel position
-        if self.frontLeft.getPosition().angle != 0.0:
+        if self.frontLeft.getPosition().angle < zeroThreshold or self.frontLeft.getPosition().angle > zeroThreshold:
             self.frontLeft.turningMotor.setVoltage(0.1)
-        if self.frontRight.getPosition().angle != 0.0:
+            print("Front Left Position = ", self.frontLeft.getPosition())
+        if self.frontRight.getPosition().angle < zeroThreshold or self.backRight.getPosition().angle > zeroThreshold:
             self.frontRight.turningMotor.setVoltage(0.1)
-        if self.backLeft.getPosition().angle != 0.0:
+            print("Front Right Position = ", self.frontRight.getPosition())
+        if self.backLeft.getPosition().angle < zeroThreshold or self.backLeft.getPosition().angle > zeroThreshold:
             self.backLeft.turningMotor.setVoltage(0.1)
-        if self.backRight.getPosition().angle != 0.0:
+            print("Back Left Position = ", self.backLeft.getPosition())
+        if self.backRight.getPosition().angle < zeroThreshold or self.backRight.getPosition().angle > zeroThreshold:
             self.backRight.turningMotor.setVoltage(0.1)
+            print("Back Right Position = ", self.backRight.getPosition())
