@@ -56,8 +56,8 @@ class MyRobot(wpilib.TimedRobot):
         # return positive values when you pull to the right by default.
         # NOTE: Check if we need inversion here
         ySpeed = (
-            -self.yspeedLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(2), 0.2)
+            self.yspeedLimiter.calculate(
+                wpimath.applyDeadband(self.controller.getRawAxis(2), 0.4)
             )
             * drivetrain.kTMaxSpeed
         )
@@ -68,7 +68,7 @@ class MyRobot(wpilib.TimedRobot):
         # the right by default.
         rot = (
             -self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(4), 0.4)
+                wpimath.applyDeadband(self.controller.getRawAxis(4), 0.5)
             )
             * drivetrain.kRMaxSpeed
         )
