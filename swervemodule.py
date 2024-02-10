@@ -87,10 +87,11 @@ class SwerveModule:
 
         # Gains are for example purposes only - must be determined for your own robot!
         self.turningPIDController = wpimath.controller.ProfiledPIDController(
-            0.0662,
+            0.06,
+            #0.0662,
             #0.05,
             0,
-            0,
+            0.00006,
             wpimath.trajectory.TrapezoidProfile.Constraints(
                 kModuleMaxAngularVelocity,
                 kModuleMaxAngularAcceleration, #How is the contraint applied
