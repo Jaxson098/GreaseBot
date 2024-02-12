@@ -87,11 +87,12 @@ class SwerveModule:
 
         # Gains are for example purposes only - must be determined for your own robot!
         self.turningPIDController = wpimath.controller.ProfiledPIDController(
-            0.06,
-            #0.0662,
-            #0.05,
+            #0.04,
+            #0,
+            #0.000053,
+            0.04,
             0,
-            0.00006,
+            0.000053,
             wpimath.trajectory.TrapezoidProfile.Constraints(
                 kModuleMaxAngularVelocity,
                 kModuleMaxAngularAcceleration, #How is the contraint applied
@@ -101,7 +102,7 @@ class SwerveModule:
         # Gains are for example purposes only - must be determined for your own robot!
         # NOTE: To review
         self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(1, 3)
-        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0.1, 0.5)
+        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0, 0.45)
 
         # Set the distance per pulse for the drive encoder. We can simply use the
         # distance traveled for one rotation of the wheel divided by the encoder
