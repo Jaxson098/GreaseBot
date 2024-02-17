@@ -17,7 +17,7 @@ import wpimath.units
 
 kWheelRadius = 0.0508 # In meters
 kEncoderResolution = 4096
-kVEncoderResolution = 42 #Need to confirm
+kVEncoderResolution = 4096#42 #Need to confirm
 kModuleMaxAngularVelocity = math.pi #need to understand how this applies to the motor
 kModuleMaxAngularAcceleration = math.tau #need to understand how this applies to the motor
 
@@ -83,7 +83,7 @@ class SwerveModule:
 
         # NOTE: This is the values we need to tweak 99, 102, 114, & 115
         # Gains are for example purposes only - must be determined for your own robot!
-        self.drivePIDController = wpimath.controller.PIDController(0, 0, 0)
+        self.drivePIDController = wpimath.controller.PIDController(0.02, 0, 0)
 
         # Gains are for example purposes only - must be determined for your own robot!
         self.turningPIDController = wpimath.controller.ProfiledPIDController(
@@ -129,7 +129,7 @@ class SwerveModule:
 
         :returns: The current state of the module.
         """
-        print("Get State:", self.turningEncoder.getDeviceNumber, self.turningEncoder.getPosition())
+        #print("Get State:", self.turningEncoder.getDeviceNumber, self.turningEncoder.getPosition())
         return wpimath.kinematics.SwerveModuleState(
             self.driveEncoder.getVelocity(),
             wpimath.geometry.Rotation2d(self.turningEncoder.getPosition()),
@@ -140,7 +140,7 @@ class SwerveModule:
 
         :returns: The current position of the module.
         """
-        print("Get Position:", self.turningEncoder.getDeviceNumber, self.turningEncoder.getPosition())
+        #print("Get Position:", self.turningEncoder.getDeviceNumber, self.turningEncoder.getPosition())
         return wpimath.kinematics.SwerveModulePosition(
             self.driveEncoder.getVelocity(),
             wpimath.geometry.Rotation2d(self.turningEncoder.getPosition()),
@@ -175,7 +175,7 @@ class SwerveModule:
 
         # Calculate the turning motor output from the turning PID controller.
         turnOutput = self.turningPIDController.calculate(
-            -self.turningEncoder.getPosition(), state.angle.radians() 
+            self.turningEncoder.getPosition(), state.angle.radians() 
         )
 
         turnFeedforward = self.turnFeedforward.calculate(
@@ -183,7 +183,7 @@ class SwerveModule:
         )
 
         self.driveMotor.setVoltage(driveOutput + driveFeedforward)
-        self.turningMotor.setVoltage(turnOutput + turnFeedforward)
+        self.turningMotor.setVoltage(turnOutput + (turnFeedforward * -1))
 
         #print(self.driveMotor.getDeviceId(), driveOutput, driveFeedforward)
         print(self.turningMotor.getDeviceId(), self.turningPIDController.getSetpoint().velocity, self.turningEncoder.getPosition(), state.angle.radians(), turnOutput, turnFeedforward)
