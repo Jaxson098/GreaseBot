@@ -5,6 +5,7 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
+import math
 import wpilib
 import wpimath
 import wpilib.drive
@@ -25,8 +26,8 @@ class MyRobot(wpilib.TimedRobot):
         # Speed limiters
 
         self.xspeedLimiter = wpimath.filter.SlewRateLimiter(3)
-        self.yspeedLimiter = wpimath.filter.SlewRateLimiter(1)
-        self.rotLimiter = wpimath.filter.SlewRateLimiter(0.5)
+        self.yspeedLimiter = wpimath.filter.SlewRateLimiter(3)
+        self.rotLimiter = wpimath.filter.SlewRateLimiter(3)
 
         # Align the wheels to 0
         #self.swerve.alignment()
@@ -59,7 +60,7 @@ class MyRobot(wpilib.TimedRobot):
         # return positive values when you pull to the right by default.
         # NOTE: Check if we need inversion here
         ySpeed = (
-            -self.yspeedLimiter.calculate(
+            self.yspeedLimiter.calculate(
                 wpimath.applyDeadband(self.controller.getRawAxis(2), 0.6)
             )
             * drivetrain.kTMaxSpeed
@@ -70,11 +71,17 @@ class MyRobot(wpilib.TimedRobot):
         # mathematics). Xbox controllers return positive values when you pull to
         # the right by default.
         rot = (
-            -self.rotLimiter.calculate(
+            (self.rotLimiter.calculate(
+                wpimath.applyDeadband(self.controller.getRawAxis(3), 0.5)
+            )
+            * drivetrain.kRMaxSpeed) +
+            (-self.rotLimiter.calculate(
                 wpimath.applyDeadband(self.controller.getRawAxis(4), 0.5)
             )
-            * drivetrain.kRMaxSpeed
+            * drivetrain.kRMaxSpeed)
         )
 
+        #print(rot)
+
         #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
-        self.swerve.drive(xSpeed, ySpeed, 0, fieldRelative, self.getPeriod())
+        self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
