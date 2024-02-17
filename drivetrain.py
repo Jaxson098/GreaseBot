@@ -10,14 +10,15 @@ import wpimath.geometry
 import wpimath.kinematics
 import swervemodule
 
-kMaxSpeed = 1.0  # meters per second
-kRMaxSpeed = 1.0
+kMaxSpeed = 1.5  # meters per second
+kRMaxSpeed = 0.1
 kTMaxSpeed = 1.0
 kMaxAngularSpeed = math.pi  # 1/2 rotation per second
 frontLeftZero = 0
 frontRightZero = 0
 backLeftZero = 0
 backRightZero = 0
+zeroThreshold = wpimath.geometry.Rotation2d(0.3)
 
 
 class Drivetrain:
@@ -138,6 +139,8 @@ class Drivetrain:
         self.backLeft.setDesiredState(swerveModuleStates[2])
         self.backRight.setDesiredState(swerveModuleStates[3])
 
+        #print(swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3])
+
     def updateOdometry(self) -> None:
         """Updates the field relative position of the robot."""
         self.odometry.update(
@@ -153,15 +156,15 @@ class Drivetrain:
     def alignment(self) -> None:
         '''Updates the wheel alignment for robot to zero'''
         #Leverage Network Tables to report out each wheel position
-        if self.frontLeft.getPosition().angle < zeroThreshold or self.frontLeft.getPosition().angle > zeroThreshold:
+        if self.frontLeft.getPosition().angle > zeroThreshold:
             self.frontLeft.turningMotor.setVoltage(0.1)
             print("Front Left Position = ", self.frontLeft.getPosition())
-        if self.frontRight.getPosition().angle < zeroThreshold or self.backRight.getPosition().angle > zeroThreshold:
+        if self.backRight.getPosition().angle > zeroThreshold:
             self.frontRight.turningMotor.setVoltage(0.1)
             print("Front Right Position = ", self.frontRight.getPosition())
-        if self.backLeft.getPosition().angle < zeroThreshold or self.backLeft.getPosition().angle > zeroThreshold:
+        if self.backLeft.getPosition().angle > zeroThreshold:
             self.backLeft.turningMotor.setVoltage(0.1)
             print("Back Left Position = ", self.backLeft.getPosition())
-        if self.backRight.getPosition().angle < zeroThreshold or self.backRight.getPosition().angle > zeroThreshold:
+        if self.backRight.getPosition().angle > zeroThreshold:
             self.backRight.turningMotor.setVoltage(0.1)
             print("Back Right Position = ", self.backRight.getPosition())
