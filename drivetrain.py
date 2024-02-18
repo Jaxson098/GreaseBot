@@ -9,7 +9,9 @@ import wpilib
 import wpimath.geometry
 import wpimath.kinematics
 import swervemodule
+import variables
 
+'''
 kMaxSpeed = 1.5  # meters per second
 kRMaxSpeed = 0.1
 kTMaxSpeed = 1.0
@@ -19,7 +21,7 @@ frontRightZero = 0
 backLeftZero = 0
 backRightZero = 0
 zeroThreshold = wpimath.geometry.Rotation2d(0.3)
-
+'''
 
 class Drivetrain:
     """
@@ -129,7 +131,7 @@ class Drivetrain:
             )
         )
         wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(
-            swerveModuleStates, kMaxSpeed
+            swerveModuleStates, variables.kMaxSpeed
         )
 
         #NOTE: Should we desaturate for Turning speed motors? 
@@ -139,6 +141,8 @@ class Drivetrain:
         self.backLeft.setDesiredState(swerveModuleStates[2])
         self.backRight.setDesiredState(swerveModuleStates[3])
 
+        #print(wpimath.kinematics.ChassisSpeeds(0, 0, rot))
+        #print(wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot))
         #print(swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3])
 
     def updateOdometry(self) -> None:
@@ -156,15 +160,15 @@ class Drivetrain:
     def alignment(self) -> None:
         '''Updates the wheel alignment for robot to zero'''
         #Leverage Network Tables to report out each wheel position
-        if self.frontLeft.getPosition().angle > zeroThreshold:
+        if self.frontLeft.getPosition().angle > variables.zeroThreshold:
             self.frontLeft.turningMotor.setVoltage(0.1)
             print("Front Left Position = ", self.frontLeft.getPosition())
-        if self.backRight.getPosition().angle > zeroThreshold:
+        if self.backRight.getPosition().angle > variables.zeroThreshold:
             self.frontRight.turningMotor.setVoltage(0.1)
             print("Front Right Position = ", self.frontRight.getPosition())
-        if self.backLeft.getPosition().angle > zeroThreshold:
+        if self.backLeft.getPosition().angle > variables.zeroThreshold:
             self.backLeft.turningMotor.setVoltage(0.1)
             print("Back Left Position = ", self.backLeft.getPosition())
-        if self.backRight.getPosition().angle > zeroThreshold:
+        if self.backRight.getPosition().angle > variables.zeroThreshold:
             self.backRight.turningMotor.setVoltage(0.1)
             print("Back Right Position = ", self.backRight.getPosition())
