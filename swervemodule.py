@@ -14,10 +14,13 @@ from phoenix5.sensors import CANCoder
 import phoenix5.sensors 
 from rev import CANSparkMax
 import wpimath.units
+import drivetrain
+import variables
+
 
 kWheelRadius = 0.0508 # In meters
 kEncoderResolution = 4096
-kVEncoderResolution = 4096#42 #Need to confirm
+kVEncoderResolution = 42 #Need to confirm
 kModuleMaxAngularVelocity = math.pi #need to understand how this applies to the motor
 kModuleMaxAngularAcceleration = math.tau #need to understand how this applies to the motor
 
@@ -70,7 +73,7 @@ class SwerveModule:
         self.turningMotor = CANSparkMax(turningMotorID, CANSparkMax.MotorType.kBrushless)
         self.driveEncoder = self.driveMotor.getEncoder()
         self.turningEncoder = CANCoder(turningEncoderID, "rio")
-        print(turningEncoderID, self.turningEncoder.getPosition())
+        #print(turningEncoderID, self.turningEncoder.getPosition())
         #self.turningEncoder.configFeedbackCoefficient(sensorCoefficient=(2 * math.pi / 4096), unitString="rad", sensortimeBase=1)
         #self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", 1)
         #self.turningEncoder.configFeedbackCoefficient(self, sensorCoefficient=(2 * math.pi / 4096), unitString="rad", sensorTimeBase=1)
@@ -78,21 +81,22 @@ class SwerveModule:
         self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", phoenix5.sensors.SensorTimeBase(1))
         self.turningEncoder.configAbsoluteSensorRange(phoenix5.sensors.AbsoluteSensorRange(1))
         self.turningEncoder.configSensorDirection(1)
+        #self.drivetrain = drivetrain.Drivetrain()
 
         # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
 
         # NOTE: This is the values we need to tweak 99, 102, 114, & 115
         # Gains are for example purposes only - must be determined for your own robot!
-        self.drivePIDController = wpimath.controller.PIDController(0.02, 0, 0)
+        self.drivePIDController = wpimath.controller.PIDController(variables.drivePID_P, variables.drivePID_I, variables.drivePID_D)
 
         # Gains are for example purposes only - must be determined for your own robot!
         self.turningPIDController = wpimath.controller.ProfiledPIDController(
             #0.04,
             #0,
             #0.000053,
-            0.04,
-            0,
-            0.000053,
+            variables.turnPID_P,
+            variables.turnPID_I,
+            variables.turnPID_D,
             wpimath.trajectory.TrapezoidProfile.Constraints(
                 kModuleMaxAngularVelocity,
                 kModuleMaxAngularAcceleration, #How is the contraint applied
@@ -101,8 +105,8 @@ class SwerveModule:
 
         # Gains are for example purposes only - must be determined for your own robot!
         # NOTE: To review
-        self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(1, 3)
-        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0, 0.45)
+        self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(variables.driveFF_1, variables.driveFF_2)
+        self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(variables.turnFF_1, variables.turnFF_2)
 
         # Set the distance per pulse for the drive encoder. We can simply use the
         # distance traveled for one rotation of the wheel divided by the encoder
@@ -182,9 +186,17 @@ class SwerveModule:
             self.turningPIDController.getSetpoint().velocity
         )
 
-        self.driveMotor.setVoltage(driveOutput + driveFeedforward)
-        self.turningMotor.setVoltage(turnOutput + (turnFeedforward * -1))
+        print(variables.TurnState)
+        if variables.TurnState == 1:
+            self.turningMotor.setVoltage((turnOutput + turnFeedforward) * -1)
+            self.driveMotor.setVoltage(driveOutput + driveFeedforward)
+            print("rotatating")
+        else: 
+            self.turningMotor.setVoltage(turnOutput + turnFeedforward)
+            self.driveMotor.setVoltage(driveOutput + driveFeedforward)
+
+
 
         #print(self.driveMotor.getDeviceId(), driveOutput, driveFeedforward)
-        print(self.turningMotor.getDeviceId(), self.turningPIDController.getSetpoint().velocity, self.turningEncoder.getPosition(), state.angle.radians(), turnOutput, turnFeedforward)
+        #print(self.turningMotor.getDeviceId(), self.turningPIDController.getSetpoint().velocity, self.turningEncoder.getPosition(), state.angle.radians(), turnOutput, turnFeedforward)
         #print(self.turningMotor.getDeviceId(), self.turningEncoder.getAbsolutePosition(), self.turningEncoder.getPosition())
