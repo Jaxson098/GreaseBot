@@ -7,3 +7,5 @@ self.gyro = AnalogGyro(0)
  self.armExtensionMotor = ctre.WPI_TalonSRX(ArmExtensionMotorPort)
         self.angleMotor = ctre.WPI_TalonSRX(AngleMotorPort)
 
+self.armangle = self.angler.getAngle()
+        self.sd.putNumber('armAngle', self.armangle)
