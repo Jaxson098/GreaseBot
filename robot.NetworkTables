@@ -16,9 +16,11 @@ self.sd.putNumber(turnoutput", self.turnOutput)
 self.sd.putNumber("dffoward", self.driveFeedFoward)
 self.sd.putNumber("doutput", self.driveOutput)
 
-
+#get a topic from a NetworkTable
 def robotInit(self):
     # Use gyro declaration from above here
 
     # Places a compass indicator for the gyro heading on the dashboard
     Shuffleboard.getTab("Example tab").add(self.gyro)
+
+
