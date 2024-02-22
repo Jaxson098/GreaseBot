@@ -31,10 +31,7 @@ class ShootModule:
         # NOTE: Need to determine if this is the right distance per pulse value (from user guide it shows 42 counts per revolution)
 
 
-    def vacummotor(self):
-        self.shootMotor1ID(-2)
-        self.shootMotor2ID(-3)
-    
+   
     def ampshootmotor(self):
         self.shootMotor1ID(1)
         self.shootMotor2ID(2)
