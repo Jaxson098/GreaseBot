@@ -24,7 +24,8 @@ driveFF_2 = 3
 turnFF_1 = 0
 turnFF_2 = 0.45
 TurnState = 0
-
+IntakeMotor1ID = 16
+IntakeMotor2ID=17
 def setTurnState(rot) -> None:
     global TurnState
     if abs(rot) > 0:
