@@ -25,7 +25,20 @@ turnFF_1 = 0
 turnFF_2 = 0.45
 TurnState = 0
 IntakeMotor1ID = 16
-IntakeMotor2ID=17
+IntakeMotor2ID = 17
+shootMotor1ID = 14
+shootMotor2ID = 15
+self.shootMotor1ID.set(1)
+self.shootMotor2ID.set(2)
+self.shootMotor1ID.set(5)
+self.shootMotor2ID.set(5) 
+self.shootMotor1ID.set(0)
+self.shootMotor2ID.set(0)
+self.IntakeMotor1ID.set(-2)
+self.IntakeMotor2ID.set(-3) 
+self.IntakeMotor1ID.set(0)
+self.IntakeMotor2ID.set(0)
+  
 def setTurnState(rot) -> None:
     global TurnState
     if abs(rot) > 0:
