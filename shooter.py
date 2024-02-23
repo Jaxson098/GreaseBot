@@ -8,6 +8,8 @@ import math
 import wpilib
 import wpimath.kinematics
 import wpimath.controller
+import variables
+
 from phoenix5 import WPI_TalonSRX
 
 # Variables
