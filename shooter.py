@@ -33,8 +33,8 @@ class ShootModule:
 
    
     def ampshootmotor(self):
-        self.shootMotor1ID(1)
-        self.shootMotor2ID(2)
+        self.shootMotor1ID.set(1)
+        self.shootMotor2ID.set(2)
 
     
     def speakershootmotor(self):
