@@ -25,8 +25,8 @@ class ShootModule:
 
         # NOTE: need to confirm output from SparkMaxAbsoluteEncoder - may shift to Relative Encoder
         ## No longer required 
-        self.shootMotor1ID = WPI_TalonSRX(14)
-        self.shootMotor2ID = WPI_TalonSRX(15)
+        self.shootMotor1ID = WPI_TalonSRX(14) # VAR
+        self.shootMotor2ID = WPI_TalonSRX(15) # VAR
         
         # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
 
@@ -35,15 +35,15 @@ class ShootModule:
 
    
     def ampshootmotor(self):
-        self.shootMotor1ID.set(1)
-        self.shootMotor2ID.set(2)
+        self.shootMotor1ID.set(1) # VAR
+        self.shootMotor2ID.set(2) # VAR
 
     
     def speakershootmotor(self):
-        self.shootMotor1ID.set(5)
-        self.shootMotor2ID.set(5) 
+        self.shootMotor1ID.set(5) # VAR
+        self.shootMotor2ID.set(5) # VAR
 
     def stopmotor(self):
-        self.shootMotor1ID.set(0)
-        self.shootMotor2ID.set(0)
+        self.shootMotor1ID.set(0) # VAR
+        self.shootMotor2ID.set(0) # VAR
 
