@@ -21,17 +21,17 @@ class Intakemodule:
     IntakeMotor2ID: int, 
   )-> None:
 
-  self.IntakeMotor1ID = WPI_TalonSRX(16)
-self.IntakeMotor2ID:= WPI_TalonSRX(17)
+  self.IntakeMotor1ID = WPI_TalonSRX(16) # VAR
+self.IntakeMotor2ID:= WPI_TalonSRX(17) # VAR
 
 
 
 def vaccummotor(self):
-  self.IntakeMotor1ID.set(-2)
-  self.IntakeMotor2ID.set(-3)
+  self.IntakeMotor1ID.set(-2) # VAR
+  self.IntakeMotor2ID.set(-3) # VAR
 
 def stopmotor(self): 
-  self.IntakeMotor1ID.set(0)
-  self.IntakeMotor2ID.set(0)
+  self.IntakeMotor1ID.set(0) # VAR
+  self.IntakeMotor2ID.set(0) # VAR
   
 
