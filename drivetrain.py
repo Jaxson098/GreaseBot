@@ -5,6 +5,7 @@
 #
 
 import math
+import navx
 import wpilib
 import wpimath.geometry
 import wpimath.kinematics
@@ -32,11 +33,13 @@ class Drivetrain:
         # NOTE: May need to tweak the center measurements 44.5mm rough measurement
         # NOTE: EVERYTHING IS MEASURE IN METERS! 
         # NOTE: Update center measure distance from each module
+        # Wheel to Wheel = 63.4 cm
+        # Chassis = 76cm
 
-        self.frontLeftLocation = wpimath.geometry.Translation2d(0.36, 0.36)
-        self.frontRightLocation = wpimath.geometry.Translation2d(0.36, -0.36)
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.36, 0.36)
-        self.backRightLocation = wpimath.geometry.Translation2d(-0.36, -0.36)
+        self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32)
+        self.frontRightLocation = wpimath.geometry.Translation2d(0.32, -0.32)
+        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
+        self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
 
         self.frontLeft = swervemodule.SwerveModule(4, 3, 4, 13)
         self.frontRight = swervemodule.SwerveModule(7, 8, 7, 10)
@@ -77,7 +80,12 @@ class Drivetrain:
 
         '''
 
-        self.gyro = wpilib.AnalogGyro(0)
+        #self.gyro = wpilib.AnalogGyro(0)
+        self.angler = navx.AHRS.create_spi()
+        #print("gyroscope = ", self.angler)
+        self.gyro = self.angler.getAngle()
+        self.gyroradians = wpimath.units.degreesToRadians(self.gyro)
+        print("gyro", self.gyro)
 
         #NOTE: Just defining the fixed kinematics of the bot
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
@@ -91,7 +99,11 @@ class Drivetrain:
         #NOTE: Need to understand expected units/values returned - is it meters & radians?
         self.odometry = wpimath.kinematics.SwerveDrive4Odometry(
             self.kinematics,
-            self.gyro.getRotation2d(),
+            wpimath.geometry.Rotation2d(self.gyroradians),
+            #self.angler.getAngle(),
+            #self.angler.getRotation2d(),
+            #self.gyro.Translation2d(),
+            #self.gyro.getRotation2d(),
             (
                 self.frontLeft.getPosition(),
                 self.frontRight.getPosition(),
@@ -100,9 +112,9 @@ class Drivetrain:
             ),
         )
 
-        print(self.frontLeft.getPosition(), self.frontRight.getPosition(), self.backLeft.getPosition(), self.backRight.getPosition())
+        #print(self.frontLeft.getPosition(), self.frontRight.getPosition(), self.backLeft.getPosition(), self.backRight.getPosition())
 
-        self.gyro.reset()
+        self.angler.reset()
 
     def drive(
         self,
@@ -123,7 +135,7 @@ class Drivetrain:
         swerveModuleStates = self.kinematics.toSwerveModuleStates(
             wpimath.kinematics.ChassisSpeeds.discretize(
                 wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xSpeed, ySpeed, rot, self.gyro.getRotation2d()
+                    xSpeed, ySpeed, rot, wpimath.geometry.Rotation2d(self.gyroradians)
                 )
                 if fieldRelative
                 else wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot),
@@ -145,10 +157,11 @@ class Drivetrain:
         #print(wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot))
         #print(swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3])
 
+    # CURRENLY NOT BEING USED
     def updateOdometry(self) -> None:
         """Updates the field relative position of the robot."""
         self.odometry.update(
-            self.gyro.getRotation2d(),
+            wpimath.geometry.Rotation2d(self.gyroradians),
             (
                 self.frontLeft.getPosition(),
                 self.frontRight.getPosition(),
