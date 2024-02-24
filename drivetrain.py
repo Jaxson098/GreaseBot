@@ -41,15 +41,15 @@ class Drivetrain:
         self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
         self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
         '''
-        self.frontLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
-        self.frontRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
-        self.backRightLocation = wpimath.geometry.Translation2d(0.32, -0.32)
-        self.backLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32)
+        self.frontLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32) # VAR
+        self.frontRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32) # VAR
+        self.backRightLocation = wpimath.geometry.Translation2d(0.32, -0.32) # VAR
+        self.backLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32) # VAR
 
-        self.frontLeft = swervemodule.SwerveModule(4, 3, 4, 13)
-        self.frontRight = swervemodule.SwerveModule(7, 8, 7, 10)
-        self.backRight = swervemodule.SwerveModule(5, 6, 5, 12)
-        self.backLeft = swervemodule.SwerveModule(2, 1, 2, 11)
+        self.frontLeft = swervemodule.SwerveModule(4, 3, 4, 13) # VAR
+        self.frontRight = swervemodule.SwerveModule(7, 8, 7, 10) # VAR
+        self.backRight = swervemodule.SwerveModule(5, 6, 5, 12) # VAR
+        self.backLeft = swervemodule.SwerveModule(2, 1, 2, 11) # VAR
 
 
         '''
@@ -86,7 +86,7 @@ class Drivetrain:
 
         '''
 
-        #self.gyro = wpilib.AnalogGyro(0)
+        #self.gyro = wpilib.AnalogGyro(0) # VAR
         self.angler = navx.AHRS.create_spi()
         #print("gyroscope = ", self.angler)
         self.gyro = self.angler.getAngle()
@@ -154,10 +154,10 @@ class Drivetrain:
 
         #NOTE: Should we desaturate for Turning speed motors? 
         
-        self.frontLeft.setDesiredState(swerveModuleStates[0])
-        self.frontRight.setDesiredState(swerveModuleStates[1])
-        self.backRight.setDesiredState(swerveModuleStates[2])
-        self.backLeft.setDesiredState(swerveModuleStates[3])
+        self.frontLeft.setDesiredState(swerveModuleStates[0]) # VAR
+        self.frontRight.setDesiredState(swerveModuleStates[1]) # VAR
+        self.backRight.setDesiredState(swerveModuleStates[2]) # VAR
+        self.backLeft.setDesiredState(swerveModuleStates[3]) # VAR
 
 
         #print(wpimath.kinematics.ChassisSpeeds(0, 0, rot))
@@ -194,8 +194,8 @@ class Drivetrain:
             print("Back Right Position = ", self.backRight.getPosition())
     '''
     def alignment(self) -> None:
-        self.frontLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0)))
-        self.frontRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0)))
-        self.backRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0)))
-        self.backLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0)))
+        self.frontLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
+        self.frontRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
+        self.backRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
+        self.backLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
         print("aligning")
