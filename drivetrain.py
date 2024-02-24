@@ -35,16 +35,22 @@ class Drivetrain:
         # NOTE: Update center measure distance from each module
         # Wheel to Wheel = 63.4 cm
         # Chassis = 76cm
-
+        '''
         self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32)
         self.frontRightLocation = wpimath.geometry.Translation2d(0.32, -0.32)
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
         self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
+        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
+        '''
+        self.frontLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
+        self.frontRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
+        self.backRightLocation = wpimath.geometry.Translation2d(0.32, -0.32)
+        self.backLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32)
 
         self.frontLeft = swervemodule.SwerveModule(4, 3, 4, 13)
         self.frontRight = swervemodule.SwerveModule(7, 8, 7, 10)
-        self.backLeft = swervemodule.SwerveModule(2, 1, 2, 11)
         self.backRight = swervemodule.SwerveModule(5, 6, 5, 12)
+        self.backLeft = swervemodule.SwerveModule(2, 1, 2, 11)
+
 
         '''
         BERT NOTES:
@@ -91,8 +97,8 @@ class Drivetrain:
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
             self.frontLeftLocation,
             self.frontRightLocation,
-            self.backLeftLocation,
             self.backRightLocation,
+            self.backLeftLocation,
         )
 
         #NOTE: getPosition - need to determine position value - velocity and angle -
@@ -107,8 +113,8 @@ class Drivetrain:
             (
                 self.frontLeft.getPosition(),
                 self.frontRight.getPosition(),
-                self.backLeft.getPosition(),
                 self.backRight.getPosition(),
+                self.backLeft.getPosition(),
             ),
         )
 
@@ -150,8 +156,9 @@ class Drivetrain:
         
         self.frontLeft.setDesiredState(swerveModuleStates[0])
         self.frontRight.setDesiredState(swerveModuleStates[1])
-        self.backLeft.setDesiredState(swerveModuleStates[2])
-        self.backRight.setDesiredState(swerveModuleStates[3])
+        self.backRight.setDesiredState(swerveModuleStates[2])
+        self.backLeft.setDesiredState(swerveModuleStates[3])
+
 
         #print(wpimath.kinematics.ChassisSpeeds(0, 0, rot))
         #print(wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot))
@@ -165,13 +172,13 @@ class Drivetrain:
             (
                 self.frontLeft.getPosition(),
                 self.frontRight.getPosition(),
-                self.backLeft.getPosition(),
                 self.backRight.getPosition(),
+                self.backLeft.getPosition(),
             ),
         )
-    
+    '''
     def alignment(self) -> None:
-        '''Updates the wheel alignment for robot to zero'''
+        #Updates the wheel alignment for robot to zer0
         #Leverage Network Tables to report out each wheel position
         if self.frontLeft.getPosition().angle > variables.zeroThreshold:
             self.frontLeft.turningMotor.setVoltage(0.1)
@@ -185,3 +192,10 @@ class Drivetrain:
         if self.backRight.getPosition().angle > variables.zeroThreshold:
             self.backRight.turningMotor.setVoltage(0.1)
             print("Back Right Position = ", self.backRight.getPosition())
+    '''
+    def alignment(self) -> None:
+        self.frontLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0)))
+        self.frontRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0)))
+        self.backRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0)))
+        self.backLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0)))
+        print("aligning")
