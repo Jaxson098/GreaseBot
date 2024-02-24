@@ -21,8 +21,6 @@ class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
         self.controller = wpilib.Joystick(2)
-        #self.controller = wpilib.PS4Controller(2)
-        #self.controller = wpilib.XboxController(0)
         self.swerve = drivetrain.Drivetrain()
         self.shooter = shooter.ShootModule()
         # navxGyro is a file to test the navx Gyro. This can be ignored/commented out.
@@ -33,7 +31,7 @@ class MyRobot(wpilib.TimedRobot):
 
         self.xspeedLimiter = wpimath.filter.SlewRateLimiter(3)
         self.yspeedLimiter = wpimath.filter.SlewRateLimiter(3)
-        self.rotLimiter = wpimath.filter.SlewRateLimiter(4)
+        self.rotLimiter = wpimath.filter.SlewRateLimiter(3)
 
         # Align the wheels to 0
         #self.swerve.alignment()
@@ -48,6 +46,9 @@ class MyRobot(wpilib.TimedRobot):
         self.navxGyro.getGyro()
         #self.shootWithJoystick(False)
         #self.shooter.speakershootmotor(1, 1)
+        if self.controller.getRawButton(1) == 1:
+            print("square button pressed")
+            self.swerve.alignment()
         if self.controller.getRawButton(4) == 1:
             self.swerve.drive(0,0,0,0,self.getPeriod())
             self.swerve.alignment()
@@ -80,11 +81,11 @@ class MyRobot(wpilib.TimedRobot):
         # the right by default.
         rot = (
             (-self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(3), 0.5)
+                wpimath.applyDeadband(self.controller.getRawAxis(3), 0.2)
             )
             * variables.kRMaxSpeed) +
             (self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(4), 0.5)
+                wpimath.applyDeadband(self.controller.getRawAxis(4), 0.2)
             )
             * variables.kRMaxSpeed)
         )
