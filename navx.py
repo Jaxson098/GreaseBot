@@ -1,4 +1,4 @@
-self.gyro = AnalogGyro(0)
+self.gyro = AnalogGyro(0) # VAR
  
 
 #navx micro for angles
