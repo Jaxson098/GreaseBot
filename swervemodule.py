@@ -186,7 +186,7 @@ class SwerveModule:
             self.turningPIDController.getSetpoint().velocity
         )
 
-        print(variables.TurnState)
+        #print(variables.TurnState)
         if variables.TurnState == 1:
             self.turningMotor.setVoltage((turnOutput + turnFeedforward) * -1)
             self.driveMotor.setVoltage(driveOutput + driveFeedforward)
