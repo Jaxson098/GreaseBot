@@ -78,12 +78,12 @@ class SwerveModule:
         #self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", 1)
         #self.turningEncoder.configFeedbackCoefficient(self, sensorCoefficient=(2 * math.pi / 4096), unitString="rad", sensorTimeBase=1)
         #self.turningEncoder.configFeedbackCoefficient(self, (2 * math.pi / 4096), "rad", 1)
-        self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", phoenix5.sensors.SensorTimeBase(1))
-        self.turningEncoder.configAbsoluteSensorRange(phoenix5.sensors.AbsoluteSensorRange(1))
-        self.turningEncoder.configSensorDirection(1)
+        self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", phoenix5.sensors.SensorTimeBase(1)) # VAR
+        self.turningEncoder.configAbsoluteSensorRange(phoenix5.sensors.AbsoluteSensorRange(1)) # VAR
+        self.turningEncoder.configSensorDirection(1) # VAR
         #self.drivetrain = drivetrain.Drivetrain()
 
-        #self.turningEncoder.setPositionToAbsolute(0)
+        #self.turningEncoder.setPositionToAbsolute(0) # VAR
 
         #print("setting:", turningEncoderID, self.turningEncoder.getAbsolutePosition())
         # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
@@ -190,7 +190,7 @@ class SwerveModule:
         )
         '''
         #print(variables.TurnState)
-        if variables.TurnState == 1:
+        if variables.TurnState == 1: # VAR
             self.turningMotor.setVoltage((turnOutput + turnFeedforward) * -1)
             self.driveMotor.setVoltage(driveOutput + driveFeedforward)
             print("rotatating")
