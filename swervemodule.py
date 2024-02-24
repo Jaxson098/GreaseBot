@@ -73,7 +73,7 @@ class SwerveModule:
         self.turningMotor = CANSparkMax(turningMotorID, CANSparkMax.MotorType.kBrushless)
         self.driveEncoder = self.driveMotor.getEncoder()
         self.turningEncoder = CANCoder(turningEncoderID, "rio")
-        #print(turningEncoderID, self.turningEncoder.getPosition())
+        print(turningEncoderID, self.turningEncoder.getAbsolutePosition())
         #self.turningEncoder.configFeedbackCoefficient(sensorCoefficient=(2 * math.pi / 4096), unitString="rad", sensortimeBase=1)
         #self.turningEncoder.configFeedbackCoefficient((2 * math.pi / 4096), "rad", 1)
         #self.turningEncoder.configFeedbackCoefficient(self, sensorCoefficient=(2 * math.pi / 4096), unitString="rad", sensorTimeBase=1)
@@ -83,6 +83,9 @@ class SwerveModule:
         self.turningEncoder.configSensorDirection(1)
         #self.drivetrain = drivetrain.Drivetrain()
 
+        #self.turningEncoder.setPositionToAbsolute(0)
+
+        #print("setting:", turningEncoderID, self.turningEncoder.getAbsolutePosition())
         # NOTE: can we use the wpilib.encoder library for these encoders - may need to review
 
         # NOTE: This is the values we need to tweak 99, 102, 114, & 115
@@ -185,7 +188,7 @@ class SwerveModule:
         turnFeedforward = self.turnFeedforward.calculate(
             self.turningPIDController.getSetpoint().velocity
         )
-
+        '''
         #print(variables.TurnState)
         if variables.TurnState == 1:
             self.turningMotor.setVoltage((turnOutput + turnFeedforward) * -1)
@@ -194,9 +197,11 @@ class SwerveModule:
         else: 
             self.turningMotor.setVoltage(turnOutput + turnFeedforward)
             self.driveMotor.setVoltage(driveOutput + driveFeedforward)
-
-
-
+        '''
+        self.turningMotor.setVoltage(turnOutput + turnFeedforward)
+        self.driveMotor.setVoltage(driveOutput + driveFeedforward)
         #print(self.driveMotor.getDeviceId(), driveOutput, driveFeedforward)
         #print(self.turningMotor.getDeviceId(), self.turningPIDController.getSetpoint().velocity, self.turningEncoder.getPosition(), state.angle.radians(), turnOutput, turnFeedforward)
         #print(self.turningMotor.getDeviceId(), self.turningEncoder.getAbsolutePosition(), self.turningEncoder.getPosition())
+        #print(self.turningEncoder.getPosition(), self.turningEncoder.getAbsolutePosition())
+        print(desiredState)
