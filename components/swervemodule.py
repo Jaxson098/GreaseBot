@@ -95,7 +95,7 @@ class SwerveModule:
         # self.turningEncoder = CANEncoder(turningEncoderID, "rio")
         self.turningEncoder = hardware.CANcoder(turningEncoderID)
 
-        print(turningEncoderID, self.turningEncoder.getPosition())
+        print(turningEncoderID, self.turningEncoder.get_position())
         #self.turningEncoder = CANCoderConfiguration()
         #self.turningEncoder.sensorCoefficent = math.tau / kEncoderResolution
         #self.configs = CANCoderConfiguration()
@@ -172,9 +172,11 @@ class SwerveModule:
         :returns: The current state of the module.
         """
         # NOTE: Need to determine if getVelocity value aligns with the expected value vs getRate
+        degree= self.turningEncoder.get_position().value
+        print(degree)
         return wpimath.kinematics.SwerveModuleState(
             self.driveEncoder.getVelocity(),
-            wpimath.geometry.Rotation2d(self.degree_to_rad(self.turningEncoder.getPosition())),
+            wpimath.geometry.Rotation2d(self.degree_to_rad(degree)),
         )
 
     def getPosition(self) -> wpimath.kinematics.SwerveModulePosition:
@@ -182,9 +184,10 @@ class SwerveModule:
 
         :returns: The current position of the module.
         """
+        degree= self.turningEncoder.get_position().value
         return wpimath.kinematics.SwerveModulePosition(
             self.driveEncoder.getVelocity(), 
-            wpimath.geometry.Rotation2d(self.degree_to_rad(self.turningEncoder.getPosition())),
+            wpimath.geometry.Rotation2d(self.degree_to_rad(degree)),
         )
 
     def setDesiredState(
@@ -194,8 +197,8 @@ class SwerveModule:
 
         :param desiredState: Desired state with speed and angle.
         """
-
-        encoderRotation = wpimath.geometry.Rotation2d(self.degree_to_rad(self.turningEncoder.getPosition()))
+        degree= self.turningEncoder.get_position().value
+        encoderRotation = wpimath.geometry.Rotation2d(self.degree_to_rad(degree))
 
         # Optimize the reference state to avoid spinning further than 90 degrees
         state = wpimath.kinematics.SwerveModuleState.optimize(
@@ -219,7 +222,7 @@ class SwerveModule:
 
         # Calculate the turning motor output from the turning PID controller.
         turnOutput = self.turningPIDController.calculate(
-            self.degree_to_rad(self.turningEncoder.getPosition()), state.angle.radians()
+            self.degree_to_rad(self.turningEncoder.get_position()), state.angle.radians()
         )
 
         turnFeedforward = self.turnFeedforward.calculate(

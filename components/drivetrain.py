@@ -30,6 +30,8 @@ class Drivetrain:
         self.backLeft = swervemodule.SwerveModule(7, 5, 7, 11)
         self.backRight = swervemodule.SwerveModule(4, 6, 4, 10)
 
+        self.kinimaticsLocation()
+
         # NOTE: May need to tweak the center measurements 44.5mm rough measurement
         # NOTE: EVERYTHING IS MEASURE IN METERS! 
 
@@ -41,7 +43,7 @@ class Drivetrain:
         self.backRightLocation = wpimath.geometry.Translation2d(-0.290, -0.290)
 
         #adjusted to use the navx 
-        self.gyro = self.gyro = AHRS.create_spi(0)
+        self.gyro = AHRS.create_spi()
 
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
             self.frontLeftLocation,
