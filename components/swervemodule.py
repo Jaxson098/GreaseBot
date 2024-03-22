@@ -221,8 +221,9 @@ class SwerveModule:
         #NOTE: getPosition may be changed to getAbsolutePosition
 
         # Calculate the turning motor output from the turning PID controller.
+        position = self.turningEncoder.get_position()
         turnOutput = self.turningPIDController.calculate(
-            self.degree_to_rad(self.turningEncoder.get_position()), state.angle.radians()
+            self.degree_to_rad(position.value), state.angle.radians()
         )
 
         turnFeedforward = self.turnFeedforward.calculate(
