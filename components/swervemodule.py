@@ -12,6 +12,7 @@ import wpimath.controller
 import wpimath.trajectory
 from rev import CANEncoder
 from rev import CANSparkMax
+from phoenix6 import hardware
 
 kWheelRadius = 0.0508 # In meters
 kEncoderResolution = 4096
@@ -91,7 +92,9 @@ class SwerveModule:
         self.turningMotor = CANSparkMax(turningMotorID, CANSparkMax.MotorType.kBrushless)
         #would you not put driveEncoderID in thre parenthisies affter .getEncoder?
         self.driveEncoder = self.driveMotor.getEncoder()
-        self.turningEncoder = CANEncoder(turningEncoderID, "rio")
+        # self.turningEncoder = CANEncoder(turningEncoderID, "rio")
+        self.turningEncoder = hardware.CANcoder(turningEncoderID)
+
         print(turningEncoderID, self.turningEncoder.getPosition())
         #self.turningEncoder = CANCoderConfiguration()
         #self.turningEncoder.sensorCoefficent = math.tau / kEncoderResolution

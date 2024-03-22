@@ -8,7 +8,7 @@ import math
 import wpilib
 import wpimath.geometry
 import wpimath.kinematics
-import swervemodule
+from . import swervemodule
 import navx
 from navx import AHRS
 
