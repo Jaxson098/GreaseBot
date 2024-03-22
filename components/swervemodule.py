@@ -10,7 +10,7 @@ import wpimath.kinematics
 import wpimath.geometry
 import wpimath.controller
 import wpimath.trajectory
-from phoenix5.sensors import CANCoder, CANCoderConfiguration
+from rev import CANEncoder
 from rev import CANSparkMax
 
 kWheelRadius = 0.0508 # In meters
@@ -24,6 +24,7 @@ class SwerveModule:
         self,
         driveMotorID: int,
         turningMotorID: int,
+        #if driveEncoderID is never used anywhere and is just a parameter cant we just get rid of it?
         driveEncoderID: int,
         turningEncoderID: int,
     ) -> None:
@@ -88,8 +89,9 @@ class SwerveModule:
         ## No longer required 
         self.driveMotor = CANSparkMax(driveMotorID, CANSparkMax.MotorType.kBrushless)
         self.turningMotor = CANSparkMax(turningMotorID, CANSparkMax.MotorType.kBrushless)
+        #would you not put driveEncoderID in thre parenthisies affter .getEncoder?
         self.driveEncoder = self.driveMotor.getEncoder()
-        self.turningEncoder = CANCoder(turningEncoderID, "rio")
+        self.turningEncoder = CANEncoder(turningEncoderID, "rio")
         print(turningEncoderID, self.turningEncoder.getPosition())
         #self.turningEncoder = CANCoderConfiguration()
         #self.turningEncoder.sensorCoefficent = math.tau / kEncoderResolution
@@ -102,6 +104,8 @@ class SwerveModule:
 
         # NOTE: This is the values we need to tweak 99, 102, 114, & 115
         # Gains are for example purposes only - must be determined for your own robot!
+
+        #how do we determine the PID values?
         self.drivePIDController = wpimath.controller.PIDController(0, 0, 0)
 
         # Gains are for example purposes only - must be determined for your own robot!
@@ -119,6 +123,8 @@ class SwerveModule:
         # NOTE: To review
         # https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/feedforward.html
         # FeedForward converts
+
+        #how do we determine the voltage?
         self.driveFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(1, 0)
         self.turnFeedforward = wpimath.controller.SimpleMotorFeedforwardMeters(0, 0)
 
@@ -127,6 +133,7 @@ class SwerveModule:
         # resolution.
 
         # NOTE: Need to determine if this is the right distance per pulse value (from user guide it shows 42 counts per revolution)
+
         self.driveEncoder.setVelocityConversionFactor(
             math.tau * kWheelRadius / kVEncoderResolution
         )
@@ -155,6 +162,7 @@ class SwerveModule:
         """
         return degree * math.pi / 180
 
+        #this method is never called, can we get rid of it?
     def getState(self) -> wpimath.kinematics.SwerveModuleState:
         """Returns the current state of the module.
 
@@ -200,6 +208,7 @@ class SwerveModule:
         driveOutput = self.drivePIDController.calculate(
             self.driveEncoder.getVelocity(), state.speed
         )
+
 
         driveFeedforward = self.driveFeedforward.calculate(state.speed)
 
