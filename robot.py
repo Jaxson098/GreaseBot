@@ -22,13 +22,14 @@ from components import arm
 from rev import CANSparkMax
 
 
+
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
         #CONROLLERS 
         self.controller = wpilib.XboxController(0)
         self.swerve = drivetrain.Drivetrain()
-        self.arm = arm.Arm
+        self.arm = arm.Arm()
 
         # get the default instance of NetworkTables
         nt = ntcore.NetworkTableInstance.getDefault()
@@ -86,21 +87,32 @@ class MyRobot(wpilib.TimedRobot):
             * drivetrain.kMaxSpeed
         )
 
-        liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02)) * 0.75
-
-        intakeSpeed = 0
-        if (self.controller.getLeftBumper):
-            intakeSpeed = 0.9
-        
-        outtakeSpeed = 0
-        if(self.controller.getRightBumper):
-            outtakeSpeed = 0.9
-
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
 
-        #unsure if .set works
-        # self.arm.lift1.set(liftSpeed)
-        # self.arm.lift2.set(liftSpeed)
-        # self.arm.intake.set(intakeSpeed)
-        # self.arm.outtake1.set()
-        # self.arm.outtake2.set()
+        IntakeDirection = True
+        if self.controller.getRightBumper():
+            IntakeDirection = False
+
+        ShooterDirection = True
+        if self.controller.getLeftBumper():
+            ShooterDirection = False
+
+        intakeSpeed = (
+            self.controller.getRightTriggerAxis() * 0.75 if self.controller.getRightTriggerAxis and IntakeDirection == True else
+            self.controller.getRightTriggerAxis() * -0.75 if self.controller.getRightTriggerAxis and IntakeDirection == False else
+            0
+        )
+
+        shooterSpeed = (
+            self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and ShooterDirection == True else
+            self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and ShooterDirection == False else
+            0
+        )
+
+        liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02)) * 0.75
+
+        self.arm.lift1.setVoltage(liftSpeed)
+        self.arm.lift2.setVoltage(liftSpeed)
+        self.arm.intake.setVoltage(intakeSpeed)
+        self.arm.shooterTop.setVoltage(shooterSpeed)
+        self.arm.shooterBottom.setVoltage(shooterSpeed)

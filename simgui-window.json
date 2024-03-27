@@ -17,22 +17,22 @@
   "Window": {
     "###FMS": {
       "Collapsed": "0",
-      "Pos": "5,540",
+      "Pos": "292,508",
       "Size": "169,184"
     },
     "###Joysticks": {
       "Collapsed": "0",
-      "Pos": "250,465",
+      "Pos": "245,411",
       "Size": "796,73"
     },
     "###NetworkTables": {
       "Collapsed": "0",
-      "Pos": "250,277",
+      "Pos": "241,191",
       "Size": "750,185"
     },
     "###NetworkTables Info": {
       "Collapsed": "0",
-      "Pos": "250,130",
+      "Pos": "209,35",
       "Size": "750,145"
     },
     "###Other Devices": {
@@ -42,7 +42,7 @@
     },
     "###System Joysticks": {
       "Collapsed": "0",
-      "Pos": "5,350",
+      "Pos": "9,360",
       "Size": "192,218"
     },
     "###Timing": {
