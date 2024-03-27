@@ -9,7 +9,6 @@
 #
 #
 
-import cscore
 import ntcore
 import wpilib
 import wpimath
@@ -18,26 +17,18 @@ import wpilib.drive
 import wpimath.filter
 import wpimath.controller
 from wpimath.kinematics import SwerveModuleState
-import drivetrain
-import shooter
+from components import drivetrain
+from components import arm
+from rev import CANSparkMax
 
-#GLOBAL VARS
-intakeMotorSpeed_1 = -2
-intakeMotorSpeed_2 = -3
-speakerMotorSpeed_1 = 1
-speakerMotorSpeed_2 = 1
-ampMotorSpeed_1 = 1
-ampMotorSpeed_2 = 2
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
         #CONROLLERS 
-        self.controller = wpilib.Joystick(2)
-        #self.controller = wpilib.PS4Controller(2)
-        #self.controller = wpilib.XboxController(0)
+        self.controller = wpilib.XboxController(0)
         self.swerve = drivetrain.Drivetrain()
-        self.shooter = shooter.ShootModule()
+        self.arm = arm.Arm
 
         # get the default instance of NetworkTables
         nt = ntcore.NetworkTableInstance.getDefault()
@@ -60,10 +51,6 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopPeriodic(self) -> None:
         #self.pub.set([frontLeftState,frontRightState,backLeftState,backRightState])
-        if self.controller.getRawButtonPressed(1):
-            self.shooter.speakershootmotor(speakerMotorSpeed_1, speakerMotorSpeed_2)
-        if self.controller.getRawButtonPressed(2):
-            self.shooter.stopmotor()
         self.driveWithJoystick(True)
 
     def driveWithJoystick(self, fieldRelative: bool) -> None:
@@ -72,7 +59,7 @@ class MyRobot(wpilib.TimedRobot):
         # NOTE: Check if we need inversion here
         xSpeed = (
             -self.xspeedLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(0), 0.5)
+                wpimath.applyDeadband(self.controller.getLeftY(), 0.02)
             )
             * drivetrain.kMaxSpeed
         )
@@ -83,7 +70,7 @@ class MyRobot(wpilib.TimedRobot):
         # NOTE: Check if we need inversion here
         ySpeed = (
             -self.yspeedLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(1), 0.5)
+                wpimath.applyDeadband(self.controller.getLeftX(), 0.02)
             )
             * drivetrain.kMaxSpeed
         )
@@ -94,9 +81,26 @@ class MyRobot(wpilib.TimedRobot):
         # the right by default.
         rot = (
             -self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRawAxis(3), 0.5)
+                wpimath.applyDeadband(self.controller.getRightX(), 0.02)
             )
             * drivetrain.kMaxSpeed
         )
 
-        self.swerve.drive(xSpeed, 0, 0, fieldRelative, self.getPeriod())
+        liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02)) * 0.75
+
+        intakeSpeed = 0
+        if (self.controller.getLeftBumper):
+            intakeSpeed = 0.9
+        
+        outtakeSpeed = 0
+        if(self.controller.getRightBumper):
+            outtakeSpeed = 0.9
+
+        self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+
+        #unsure if .set works
+        # self.arm.lift1.set(liftSpeed)
+        # self.arm.lift2.set(liftSpeed)
+        # self.arm.intake.set(intakeSpeed)
+        # self.arm.outtake1.set()
+        # self.arm.outtake2.set()

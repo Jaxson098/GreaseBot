@@ -8,9 +8,12 @@ import math
 import wpilib
 import wpimath.geometry
 import wpimath.kinematics
-import swervemodule
+from . import swervemodule
+import navx
+from navx import AHRS
 
-kMaxSpeed = 3.0  # 3 meters per second
+
+kMaxSpeed = 4.7 
 kMaxAngularSpeed = math.pi  # 1/2 rotation per second
 
 
@@ -20,78 +23,27 @@ class Drivetrain:
     """
 
     def __init__(self) -> None:
+
+        #adjusted to our IDs
+        self.frontLeft = swervemodule.SwerveModule(9, 2, 9, 12)
+        self.frontRight = swervemodule.SwerveModule(3, 8, 3, 13)
+        self.backLeft = swervemodule.SwerveModule(7, 5, 7, 11)
+        self.backRight = swervemodule.SwerveModule(4, 6, 4, 10)
+
+        self.kinimaticsLocation()
+
         # NOTE: May need to tweak the center measurements 44.5mm rough measurement
         # NOTE: EVERYTHING IS MEASURE IN METERS! 
 
-        self.frontLeftLocation = wpimath.geometry.Translation2d(0.445, 0.445)
-        self.frontRightLocation = wpimath.geometry.Translation2d(0.445, -0.445)
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.445, 0.445)
-        self.backRightLocation = wpimath.geometry.Translation2d(-0.445, -0.445)
+        #adjusted to our wheel loacations
+    def kinimaticsLocation(self):
+        self.frontLeftLocation = wpimath.geometry.Translation2d(0.290, 0.290)
+        self.frontRightLocation = wpimath.geometry.Translation2d(0.290, -0.290)
+        self.backLeftLocation = wpimath.geometry.Translation2d(-0.290, 0.290)
+        self.backRightLocation = wpimath.geometry.Translation2d(-0.290, -0.290)
 
-        self.frontLeft = swervemodule.SwerveModule(4, 3, 4, 13)
-        self.frontRight = swervemodule.SwerveModule(7, 8, 7, 10)
-        self.backLeft = swervemodule.SwerveModule(2, 1, 2, 11)
-        self.backRight = swervemodule.SwerveModule(5, 6, 5, 12)
-
-        '''
-        BERT NOTES:
-        
-        driveMotorID: int,
-        turningMotorID: int,
-        driveEncoderID: int,
-        turningEncoderID: int,
-
-        Front Left (+,+) 
-            - Drive Motor: 4
-            - Rotation Motor: 3
-            - Drive Encoder: 4
-            - Rotation Encoder: 13 
-        
-        Front Right (+,-) 
-            - Drive Motor: 7
-            - Rotation Motor: 8
-            - Drive Encoder: 7
-            - Rotation Encoder: 10
-
-        Rear Left (-,+) 
-            - Drive Motor: 2
-            - Rotation Motor: 1
-            - Drive Encoder: 2
-            - Rotation Encoder: 11
-
-        Rear Right (-,-) 
-            - Drive Motor: 5
-            - Rotation Motor: 6
-            - Drive Encoder: 5
-            - Rotation Encoder: 12
-            
-        # Drive Motors
-        self.frontLeftModule_driveMotor = CANSparkMax(4, CANSparkMax.MotorType.kBrushless)
-        self.frontRightModule_driveMotor = CANSparkMax(7, CANSparkMax.MotorType.kBrushless)
-        self.rearLeftModule_driveMotor = CANSparkMax(2, CANSparkMax.MotorType.kBrushless)
-        self.rearRightModule_driveMotor = CANSparkMax(5, CANSparkMax.MotorType.kBrushless)
-        
-        # Rotate Motors
-        self.frontLeftModule_rotateMotor = CANSparkMax(3, CANSparkMax.MotorType.kBrushless)
-        self.frontRightModule_rotateMotor = CANSparkMax(8, CANSparkMax.MotorType.kBrushless)
-        self.rearLeftModule_rotateMotor = CANSparkMax(1, CANSparkMax.MotorType.kBrushless)
-        self.rearRightModule_rotateMotor = CANSparkMax(6, CANSparkMax.MotorType.kBrushless)
-
-        # Rotation Encoders
-        self.frontLeftModule_encoder = CANCoder(13, "rio")
-        self.frontRightModule_encoder = CANCoder(10, "rio")
-        self.rearLeftModule_encoder = CANCoder(11, "rio")
-        self.rearRightModule_encoder = CANCoder(12, "rio")
-
-        # Drive Encoders - check if we need absolute or relative encoder
-        self.frontLeftModule_drive_encoder = SparkMaxAbsoluteEncoder(4)
-        self.frontRightModule_drive_encoder = SparkMaxAbsoluteEncoder(7)
-        self.rearLeftModule_drive_encoder = SparkMaxAbsoluteEncoder(2)
-        self.rearRightModule_drive_encoder = SparkMaxAbsoluteEncoder(5)
-
-        '''
-
-        self.gyro = wpilib.AnalogGyro(0)
+        #adjusted to use the navx 
+        self.gyro = AHRS.create_spi()
 
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
             self.frontLeftLocation,
@@ -133,19 +85,27 @@ class Drivetrain:
         :param periodSeconds: Time
         """
 
-        swerveModuleStates = self.kinematics.toSwerveModuleStates(
-            wpimath.kinematics.ChassisSpeeds.discretize(
-                wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xSpeed, ySpeed, rot, self.gyro.getRotation2d()
-                )
-                if fieldRelative
-                else wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot),
-                periodSeconds,
-            )
-        )
+
+        chasisSpeeds=wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot)
+        translation = wpimath.geometry.Translation2d(0, 0)
+        # swerveModuleStates = self.kinematics.toSwerveModuleStates(chasisSpeeds,periodSeconds)
+        swerveModuleStates = self.kinematics.toSwerveModuleStates(chasisSpeeds,translation)
+
+        our_variable = "relative field" if fieldRelative else "not relative field"
+        # swerveModuleStates = self.kinematics.toSwerveModuleStates(
+        #     wpimath.kinematics.ChassisSpeeds.discretize(
+        #         wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
+        #             xSpeed, ySpeed, rot, self.gyro.getRotation2d()
+        #         ))
+        #         if fieldRelative
+        #         else wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot),
+        #         periodSeconds,
+            
+        # )
         wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(
             swerveModuleStates, kMaxSpeed
         )
+        #not sure what the numbers in [] do/are for
         self.frontLeft.setDesiredState(swerveModuleStates[0])
         self.frontRight.setDesiredState(swerveModuleStates[1])
         self.backLeft.setDesiredState(swerveModuleStates[2])
