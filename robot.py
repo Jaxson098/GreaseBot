@@ -27,6 +27,9 @@ class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
         #CONROLLERS 
+        self.liftDirection = False
+        self.shooterDirection = False
+
         self.controller = wpilib.XboxController(0)
         self.swerve = drivetrain.Drivetrain()
         self.arm = arm.Arm()
@@ -89,28 +92,25 @@ class MyRobot(wpilib.TimedRobot):
 
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
 
-        IntakeDirection = True
-        if self.controller.getRightBumper():
-            IntakeDirection = False
+        if self.controller.getLeftBumperPressed():
+            self.liftDirection = True if self.liftDirection == False else False
 
-        ShooterDirection = True
         if self.controller.getLeftBumper():
-            ShooterDirection = False
+            shooterDirection = True if self.shooterDirection == False else False
 
         intakeSpeed = (
-            self.controller.getRightTriggerAxis() * 0.75 if self.controller.getRightTriggerAxis and IntakeDirection == True else
-            self.controller.getRightTriggerAxis() * -0.75 if self.controller.getRightTriggerAxis and IntakeDirection == False else
+            self.controller.getRightTriggerAxis() * 0.75 if self.liftDirection == False else
+            self.controller.getRightTriggerAxis() * -0.75 if self.liftDirection == True else
             0
         )
 
         shooterSpeed = (
-            self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and ShooterDirection == True else
-            self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and ShooterDirection == False else
+            self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and shooterDirection == False else
+            self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and shooterDirection == True else
             0
         )
 
-        liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02)) * 0.75
-
+        liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02)) * 0.5
         self.arm.lift1.set(liftSpeed)
         self.arm.lift2.set(liftSpeed)
         self.arm.intake.set(intakeSpeed)
