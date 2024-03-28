@@ -9,4 +9,4 @@ class Arm:
         self.lift2 = self.motor(14, 14)
         self.intake = self.motor(14, 14)
         self.shooterTop = self.motor(14, 14)
-        self.shooterBottom = self.motor(14, 14)x
+        self.shooterBottom = self.motor(14, 14)
