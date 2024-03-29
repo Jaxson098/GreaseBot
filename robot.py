@@ -88,5 +88,7 @@ class MyRobot(wpilib.TimedRobot):
             * drivetrain.kMaxSpeed
         )
 
+        print(f"rotation {rot}")
+
         #driving the robot
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
