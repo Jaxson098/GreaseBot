@@ -25,10 +25,10 @@ class Drivetrain:
     def __init__(self) -> None:
 
         #adjusted to our IDs
-        self.frontLeft = swervemodule.SwerveModule(7, 2, 5, 12)
-        self.frontRight = swervemodule.SwerveModule(3, 4, 3, 13)
-        self.backLeft = swervemodule.SwerveModule(9, 6, 9, 11)
-        self.backRight = swervemodule.SwerveModule(8, 2, 8, 10)
+        self.frontLeft = swervemodule.SwerveModule(3, 4, 13)
+        self.frontRight = swervemodule.SwerveModule(8, 2, 10)
+        self.backLeft = swervemodule.SwerveModule(6, 9, 11)
+        self.backRight = swervemodule.SwerveModule(7, 5, 12)
 
         self.kinimaticsLocation()
 
