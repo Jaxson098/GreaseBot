@@ -95,7 +95,7 @@ class SwerveModule:
         # self.turningEncoder = CANEncoder(turningEncoderID, "rio")
         self.turningEncoder = hardware.CANcoder(turningEncoderID)
 
-        print("encoder", turningEncoderID, self.turningEncoder.get_position())
+        print(f"encoder {turningEncoderID} -> {self.turningEncoder.get_position()}")
         #self.turningEncoder = CANCoderConfiguration()
         #self.turningEncoder.sensorCoefficent = math.tau / kEncoderResolution
         #self.configs = CANCoderConfiguration()
