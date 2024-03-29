@@ -15,7 +15,7 @@ robotpy_extras = [
     # "apriltag",
     # "commands2",
     # "cscore",
-    # "navx",
+    "navx",
     # "pathplannerlib",
     # "phoenix5",
     "phoenix6",
