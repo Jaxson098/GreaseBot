@@ -18,9 +18,7 @@ import wpimath.filter
 import wpimath.controller
 from wpimath.kinematics import SwerveModuleState
 from components import drivetrain
-from components import arm
 from rev import CANSparkMax
-from Auto import AutonomousSwerveDrive
 from config import FRONT_LEFT_DRIVE_MOTOR_ID, FRONT_LEFT_TURNING_MOTOR_ID
 
 
@@ -33,7 +31,6 @@ class MyRobot(wpilib.TimedRobot):
 
         self.controller = wpilib.XboxController(0)
         self.swerve = drivetrain.Drivetrain()
-        self.arm = arm.Arm()
 
         # get the default instance of NetworkTables
         nt = ntcore.NetworkTableInstance.getDefault()
@@ -90,31 +87,6 @@ class MyRobot(wpilib.TimedRobot):
             )
             * drivetrain.kMaxSpeed
         )
-        
+
         #driving the robot
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
-
-        if self.controller.getLeftBumperPressed():
-            self.liftDirection = True if self.liftDirection == False else False
-
-        if self.controller.getLeftBumper():
-            shooterDirection = True if self.shooterDirection == False else False
-
-        intakeSpeed = (
-            self.controller.getRightTriggerAxis() * 0.75 if self.liftDirection == False else
-            self.controller.getRightTriggerAxis() * -0.75 if self.liftDirection == True else
-            0
-        )
-
-        shooterSpeed = (
-            self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and shooterDirection == False else
-            self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and shooterDirection == True else
-            0
-        )
-
-        liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02)) * 0.5
-        self.arm.lift1.set(liftSpeed)
-        self.arm.lift2.set(liftSpeed)
-        self.arm.intake.set(intakeSpeed)
-        self.arm.shooterTop.set(shooterSpeed)
-        self.arm.shooterBottom.set(shooterSpeed)
