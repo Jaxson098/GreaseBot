@@ -20,7 +20,8 @@ from wpimath.kinematics import SwerveModuleState
 from components import drivetrain
 from components import arm
 from rev import CANSparkMax
-
+from Auto import AutonomousSwerveDrive
+from config import FRONT_LEFT_DRIVE_MOTOR_ID, FRONT_LEFT_TURNING_MOTOR_ID
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -89,7 +90,8 @@ class MyRobot(wpilib.TimedRobot):
             )
             * drivetrain.kMaxSpeed
         )
-
+        
+        #driving the robot
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
 
         if self.controller.getLeftBumperPressed():
