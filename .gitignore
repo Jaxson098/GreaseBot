@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 components/.DS_Store
 .DS_Store
+ctre_sim/
