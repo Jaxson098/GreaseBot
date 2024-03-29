@@ -26,7 +26,7 @@ class SwerveModule:
         driveMotorID: int,
         turningMotorID: int,
         #if driveEncoderID is never used anywhere and is just a parameter cant we just get rid of it?
-        driveEncoderID: int,
+        # driveEncoderID: int,
         turningEncoderID: int,
     ) -> None:
         """Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
