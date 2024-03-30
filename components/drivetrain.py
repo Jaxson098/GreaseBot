@@ -86,22 +86,23 @@ class Drivetrain:
         """
 
 
-        chasisSpeeds=wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot)
-        translation = wpimath.geometry.Translation2d(0, 0)
+        # chasisSpeeds=wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot)
+        # translation = wpimath.geometry.Translation2d(0, 0)
         # swerveModuleStates = self.kinematics.toSwerveModuleStates(chasisSpeeds,periodSeconds)
-        swerveModuleStates = self.kinematics.toSwerveModuleStates(chasisSpeeds,translation)
-
-        our_variable = "relative field" if fieldRelative else "not relative field"
-        # swerveModuleStates = self.kinematics.toSwerveModuleStates(
-        #     wpimath.kinematics.ChassisSpeeds.discretize(
-        #         wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
-        #             xSpeed, ySpeed, rot, self.gyro.getRotation2d()
-        #         ))
-        #         if fieldRelative
-        #         else wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot),
-        #         periodSeconds,
-            
-        # )
+        # swerveModuleStates = self.kinematics.toSwerveModuleStates(chasisSpeeds,translation)
+        
+        swerveModuleStates = self.kinematics.toSwerveModuleStates(
+            wpimath.kinematics.ChassisSpeeds.discretize(
+                (
+                    wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
+                        xSpeed, ySpeed, rot, self.gyro.getRotation2d()
+                    )
+                    if fieldRelative
+                    else wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot)
+                ),
+                periodSeconds,
+            )
+        )
         wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(
             swerveModuleStates, kMaxSpeed
         )

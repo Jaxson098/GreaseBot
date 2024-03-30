@@ -20,11 +20,26 @@ from wpimath.kinematics import SwerveModuleState
 from components import drivetrain
 from rev import CANSparkMax
 from config import FRONT_LEFT_DRIVE_MOTOR_ID, FRONT_LEFT_TURNING_MOTOR_ID
-
-
+from wpilib import DataLogManager, DriverStation
+from wpiutil.log import (
+    DataLog,
+    BooleanLogEntry,
+    DoubleLogEntry,
+    StringLogEntry,
+)
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
+
+        DataLogManager.start()
+        DriverStation.startDataLog(DataLogManager.getLog())
+
+        log = DataLogManager.getLog()
+        self.myBooleanLog = BooleanLogEntry(log, "/my/boolean")
+        self.myDoubleLog = DoubleLogEntry(log, "/my/double")
+        self.myStringLog = StringLogEntry(log, "/my/string")
+        self.ticks=0
+
         #CONROLLERS 
         self.liftDirection = False
         self.shooterDirection = False
@@ -52,6 +67,9 @@ class MyRobot(wpilib.TimedRobot):
         self.swerve.updateOdometry()
 
     def teleopPeriodic(self) -> None:
+        # self.ticks+=1
+        # self.myStringLog.append(f"tick {self.ticks}")
+        
         #self.pub.set([frontLeftState,frontRightState,backLeftState,backRightState])
         self.driveWithJoystick(True)
 
