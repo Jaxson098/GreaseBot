@@ -45,6 +45,10 @@
     }
   },
   "NetworkTables": {
+    "combined": true,
+    "serverTimestamp": true,
+    "special": true,
+    "timestamp": true,
     "transitory": {
       "Shuffleboard": {
         "open": true
@@ -52,6 +56,15 @@
     }
   },
   "NetworkTables Info": {
+    "Connections": {
+      "open": true
+    },
+    "Server": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
     "visible": true
   }
 }

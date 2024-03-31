@@ -162,3 +162,4 @@ components/.DS_Store
 .DS_Store
 ctre_sim/
 logs/
+.vscode/settings.json

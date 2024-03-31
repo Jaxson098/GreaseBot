@@ -21,38 +21,46 @@ from components import drivetrain
 from rev import CANSparkMax
 from config import FRONT_LEFT_DRIVE_MOTOR_ID, FRONT_LEFT_TURNING_MOTOR_ID
 from wpilib import DataLogManager, DriverStation
+from wpilib import Timer
 from wpiutil.log import (
     DataLog,
     BooleanLogEntry,
     DoubleLogEntry,
     StringLogEntry,
 )
+
+
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
 
         DataLogManager.start()
+        # Record both DS control and joystick data
         DriverStation.startDataLog(DataLogManager.getLog())
+        log: DataLog = DataLogManager.getLog()
+        
+        self.timer = Timer()
+        self.timer.start()
+        self.ticks = 0
 
-        log = DataLogManager.getLog()
-        self.myBooleanLog = BooleanLogEntry(log, "/my/boolean")
-        self.myDoubleLog = DoubleLogEntry(log, "/my/double")
-        self.myStringLog = StringLogEntry(log, "/my/string")
-        self.ticks=0
-
-        #CONROLLERS 
+        # CONROLLERS
         self.liftDirection = False
         self.shooterDirection = False
 
-        self.controller = wpilib.XboxController(0)
+        # self.controller = wpilib.XboxController(0)
+        self.controller = wpilib.PS4Controller(0)
         self.swerve = drivetrain.Drivetrain()
 
         # get the default instance of NetworkTables
         nt = ntcore.NetworkTableInstance.getDefault()
-
         # Start publishing an array of module states with the "/SwerveStates" key
-        topic = nt.getStructArrayTopic("/SwerveStates", SwerveModuleState)
+        # from https://docs.wpilib.org/en/stable/docs/software/kinematics-and-odometry/swerve-drive-kinematics.html
+        # topic = nt.getStructArrayTopic("/SwerveStates", SwerveModuleState)
+        topic = nt.getStringTopic("/adrian")
         self.pub = topic.publish()
+
+        topicSS = nt.getStructArrayTopic("/SwerveStatesAdrian", SwerveModuleState)
+        self.pubSS = topicSS.publish()
 
         # Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
         self.xspeedLimiter = wpimath.filter.SlewRateLimiter(3)
@@ -60,17 +68,30 @@ class MyRobot(wpilib.TimedRobot):
         self.rotLimiter = wpimath.filter.SlewRateLimiter(3)
 
         # Launch Camera
-        #wpilib.CameraServer.launch()
+        # wpilib.CameraServer.launch()
 
     def autonomousPeriodic(self) -> None:
         self.driveWithJoystick(False)
         self.swerve.updateOdometry()
 
+    def onTimer(self):
+            self.ticks += 1
+            self.pub.set(f"the timer is {self.ticks}")
+
+            frontLeftState = self.swerve.frontLeft.getState()
+            frontRightState = self.swerve.frontRight.getState()
+            backLeftState = self.swerve.backLeft.getState()
+            backRightState = self.swerve.backRight.getState()
+
+            self.pubSS.set([frontLeftState,frontRightState,backLeftState,backRightState])
+            self.timer.reset()
+
+
     def teleopPeriodic(self) -> None:
-        # self.ticks+=1
-        # self.myStringLog.append(f"tick {self.ticks}")
-        
-        #self.pub.set([frontLeftState,frontRightState,backLeftState,backRightState])
+        if self.timer.hasElapsed(0.5):
+            self.onTimer()
+
+        # self.pub.set([frontLeftState,frontRightState,backLeftState,backRightState])
         self.driveWithJoystick(True)
 
     def driveWithJoystick(self, fieldRelative: bool) -> None:
@@ -108,5 +129,5 @@ class MyRobot(wpilib.TimedRobot):
 
         print(f"rotation {rot} xspeed{xSpeed}")
 
-        #driving the robot
+        # driving the robot
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
