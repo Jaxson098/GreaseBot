@@ -4,7 +4,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-
+import ntcore
 import math
 import wpilib
 import wpimath
@@ -14,7 +14,19 @@ import wpimath.controller
 import drivetrain
 import variables
 import shooter
+from wpimath.kinematics import SwerveModuleState
 # import navxGyro
+import wpiutil
+from wpiutil import wpistruct
+import dataclasses
+from wpilib import Timer
+@wpiutil.wpistruct.make_wpistruct(name="CANCoders")
+@dataclasses.dataclass
+class CANCodersPosition:
+    frontLeftTurn:wpistruct.double = 0.0
+    frontRightTurn:wpistruct.double = 0.0
+    backLeftTurn:wpistruct.double = 0.0
+    backRightTurn:wpistruct.double = 0.0
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -34,8 +46,34 @@ class MyRobot(wpilib.TimedRobot):
         self.yspeedLimiter = wpimath.filter.SlewRateLimiter(3) # VAR
         self.rotLimiter = wpimath.filter.SlewRateLimiter(3) # VAR
 
+        self.timer = Timer()
+        self.timer.start()
+        # logging to NT4
+        nt = ntcore.NetworkTableInstance.getDefault()
+        topicSS = nt.getStructArrayTopic("/SwerveStatesAdrian", SwerveModuleState)
+        self.pubSS = topicSS.publish()
+
+        topicCE = nt.getStructTopic("/CANEncoders", CANCodersPosition)
+        self.pubCE = topicCE.publish()
+
+
         # Align the wheels to 0
-        #self.swerve.alignment()
+        self.swerve.alignment()
+
+    def logSwerveStates(self):
+        frontLeftState = self.swerve.frontLeft.getState()
+        frontRightState = self.swerve.frontRight.getState()
+        backLeftState = self.swerve.backLeft.getState()
+        backRightState = self.swerve.backRight.getState()
+        self.pubSS.set([frontLeftState,frontRightState,backLeftState,backRightState])
+
+    def logCANEncoders(self):
+        canPost = CANCodersPosition()
+        canPost.frontLeftTurn = self.swerve.frontLeft.turningEncoder.getPosition()
+        canPost.frontRightTurn = self.swerve.frontLeft.turningEncoder.getPosition()
+        canPost.backLeftTurn = self.swerve.frontLeft.turningEncoder.getPosition()
+        canPost.backRightTurn = self.swerve.frontLeft.turningEncoder.getPosition()
+        self.pubCE.set(canPost)
 
     #FUTURE
     def autonomousPeriodic(self) -> None:
@@ -43,13 +81,21 @@ class MyRobot(wpilib.TimedRobot):
         self.swerve.updateOdometry()
 
     def teleopPeriodic(self) -> None:
+        if self.timer.hasElapsed(1):
+            self.logSwerveStates()
+            # self.logCANEncoders()
+            self.timer.restart()
+        
         self.driveWithJoystick(False)
+
         # self.navxGyro.getGyro()
         #self.shootWithJoystick(False)
         #self.shooter.speakershootmotor(1, 1)
+        #  xbox 1a 2b 4x 4y 5 left bumper 6right bumper 7 back 8 start 9 left stick 10 right stick press
         if self.controller.getRawButton(1) == 1: # VAR
             print("square button pressed")
             self.swerve.alignment()
+        
         if self.controller.getRawButton(4) == 1: # VAR
             self.swerve.drive(0,0,0,0,self.getPeriod())
             self.swerve.alignment()
@@ -61,7 +107,7 @@ class MyRobot(wpilib.TimedRobot):
         xSpeed = (
             -self.xspeedLimiter.calculate(
                 # wpimath.applyDeadband(self.controller.getRawAxis(1), 0.1) # VAR
-                wpimath.applyDeadband(self.controller.getLeftY(), 0.1) # VAR
+                wpimath.applyDeadband(self.controller.getLeftY(), 0.02) # VAR
             )
             * variables.kMaxSpeed
         )
@@ -73,7 +119,7 @@ class MyRobot(wpilib.TimedRobot):
         ySpeed = (
             -self.yspeedLimiter.calculate(
                 # wpimath.applyDeadband(self.controller.getRawAxis(2), 0.6) # VAR
-                wpimath.applyDeadband(self.controller.getLeftX(), 0.6) # VAR
+                wpimath.applyDeadband(self.controller.getLeftX(), 0.02) # VAR
             )
             * variables.kTMaxSpeed
         )
@@ -92,24 +138,24 @@ class MyRobot(wpilib.TimedRobot):
         #     )
         #     * variables.kRMaxSpeed)
         # )
-        rot = (
-            (-self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRightY(), 0.2) # VAR
-            )
-            * variables.kRMaxSpeed) +
-            (self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRightX(), 0.2) # VAR
-            )
-            * variables.kRMaxSpeed)
-        )
         # rot = (
-        #     -self.rotLimiter.calculate(
-        #         wpimath.applyDeadband(self.controller.getRightX(), 0.02)
+        #     (-self.rotLimiter.calculate(
+        #         wpimath.applyDeadband(self.controller.getRightY(), 0.2) # VAR
         #     )
-        #     * drivetrain.kMaxSpeed
+        #     * variables.kRMaxSpeed) +
+        #     (self.rotLimiter.calculate(
+        #         wpimath.applyDeadband(self.controller.getRightX(), 0.2) # VAR
+        #     )
+        #     * variables.kRMaxSpeed)
         # )
+        rot = (
+            -self.rotLimiter.calculate(
+                wpimath.applyDeadband(self.controller.getRightX(), 0.02)
+            )
+            * variables.kMaxSpeed
+        )
 
-        variables.setTurnState(rot)
+        # variables.setTurnState(rot)
 
         #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())

@@ -41,10 +41,10 @@ class Drivetrain:
         self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
         self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
         '''
-        self.frontLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32) # VAR
-        self.frontRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32) # VAR
-        self.backRightLocation = wpimath.geometry.Translation2d(0.32, -0.32) # VAR
-        self.backLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32) # VAR
+        self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32) # VAR
+        self.frontRightLocation = wpimath.geometry.Translation2d(0.32, -0.32) # VAR
+        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32) # VAR
+        self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32) # VAR
 
         ## FL (13)  FR (10)
         ## BL (11)  BR  (12)
@@ -55,8 +55,8 @@ class Drivetrain:
 
         self.frontLeft = swervemodule.SwerveModule(3, 4, 3, 13) # VAR
         self.frontRight = swervemodule.SwerveModule(8, 2, 8, 10) # VAR
-        self.backRight = swervemodule.SwerveModule(7, 5, 7, 12) # VAR
         self.backLeft = swervemodule.SwerveModule(9, 6, 9, 11) # VAR
+        self.backRight = swervemodule.SwerveModule(7, 5, 7, 12) # VAR
         '''
         BERT NOTES:
         
@@ -102,8 +102,8 @@ class Drivetrain:
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
             self.frontLeftLocation,
             self.frontRightLocation,
-            self.backRightLocation,
             self.backLeftLocation,
+            self.backRightLocation,
         )
 
         #NOTE: getPosition - need to determine position value - velocity and angle -
@@ -118,8 +118,8 @@ class Drivetrain:
             (
                 self.frontLeft.getPosition(),
                 self.frontRight.getPosition(),
-                self.backRight.getPosition(),
                 self.backLeft.getPosition(),
+                self.backRight.getPosition(),
             ),
         )
 
@@ -161,8 +161,8 @@ class Drivetrain:
         
         self.frontLeft.setDesiredState(swerveModuleStates[0]) # VAR
         self.frontRight.setDesiredState(swerveModuleStates[1]) # VAR
-        self.backRight.setDesiredState(swerveModuleStates[2]) # VAR
-        self.backLeft.setDesiredState(swerveModuleStates[3]) # VAR
+        self.backLeft.setDesiredState(swerveModuleStates[2]) # VAR
+        self.backRight.setDesiredState(swerveModuleStates[3]) # VAR
 
 
         #print(wpimath.kinematics.ChassisSpeeds(0, 0, rot))
@@ -177,8 +177,8 @@ class Drivetrain:
             (
                 self.frontLeft.getPosition(),
                 self.frontRight.getPosition(),
-                self.backRight.getPosition(),
                 self.backLeft.getPosition(),
+                self.backRight.getPosition(),
             ),
         )
     '''
@@ -199,8 +199,9 @@ class Drivetrain:
             print("Back Right Position = ", self.backRight.getPosition())
     '''
     def alignment(self) -> None:
+        print("aligning")
         self.frontLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
         self.frontRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
-        self.backRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
         self.backLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
-        print("aligning")
+        self.backRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
+        
