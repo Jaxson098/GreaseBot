@@ -204,4 +204,4 @@ class SwerveModule:
         #print(self.turningMotor.getDeviceId(), self.turningPIDController.getSetpoint().velocity, self.turningEncoder.getPosition(), state.angle.radians(), turnOutput, turnFeedforward)
         #print(self.turningMotor.getDeviceId(), self.turningEncoder.getAbsolutePosition(), self.turningEncoder.getPosition())
         #print(self.turningEncoder.getPosition(), self.turningEncoder.getAbsolutePosition())
-        print(desiredState)
+        # print(desiredState)

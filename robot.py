@@ -13,9 +13,8 @@ import wpimath.filter
 import wpimath.controller
 import drivetrain
 import variables
-import shooter
+# import shooter
 from wpimath.kinematics import SwerveModuleState
-# import navxGyro
 import wpiutil
 from wpiutil import wpistruct
 import dataclasses
@@ -65,14 +64,15 @@ class MyRobot(wpilib.TimedRobot):
         frontRightState = self.swerve.frontRight.getState()
         backLeftState = self.swerve.backLeft.getState()
         backRightState = self.swerve.backRight.getState()
+        # publish event to network table 
         self.pubSS.set([frontLeftState,frontRightState,backLeftState,backRightState])
 
     def logCANEncoders(self):
         canPost = CANCodersPosition()
-        canPost.frontLeftTurn = self.swerve.frontLeft.turningEncoder.getPosition()
-        canPost.frontRightTurn = self.swerve.frontLeft.turningEncoder.getPosition()
-        canPost.backLeftTurn = self.swerve.frontLeft.turningEncoder.getPosition()
-        canPost.backRightTurn = self.swerve.frontLeft.turningEncoder.getPosition()
+        canPost.frontLeftTurn = self.swerve.frontLeft.turningEncoder.getAbsolutePosition()
+        canPost.frontRightTurn = self.swerve.frontRight.turningEncoder.getAbsolutePosition()
+        canPost.backLeftTurn = self.swerve.backLeft.turningEncoder.getAbsolutePosition()
+        canPost.backRightTurn = self.swerve.backRight.turningEncoder.getAbsolutePosition()
         self.pubCE.set(canPost)
 
     #FUTURE
@@ -81,11 +81,13 @@ class MyRobot(wpilib.TimedRobot):
         self.swerve.updateOdometry()
 
     def teleopPeriodic(self) -> None:
+        # we want to publish data only every 1s, that's give us enough of data in Advantage Scope
         if self.timer.hasElapsed(1):
             self.logSwerveStates()
-            # self.logCANEncoders()
+            self.logCANEncoders()
             self.timer.restart()
         
+        # This one is an interesting one because Swerve example had the opposite - field relative true for teleop
         self.driveWithJoystick(False)
 
         # self.navxGyro.getGyro()
