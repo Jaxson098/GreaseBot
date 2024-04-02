@@ -41,10 +41,15 @@ class Drivetrain:
         self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
         self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
         '''
-        self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32) # VAR
-        self.frontRightLocation = wpimath.geometry.Translation2d(0.32, -0.32) # VAR
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32) # VAR
-        self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32) # VAR
+        # self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32) # VAR
+        # self.frontRightLocation = wpimath.geometry.Translation2d(0.32, -0.32) # VAR
+        # self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32) # VAR
+        # self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32) # VAR
+
+        self.frontRightLocation = wpimath.geometry.Translation2d(0.32, 0.32) # VAR
+        self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, -0.32) # VAR
+        self.backRightLocation = wpimath.geometry.Translation2d(-0.32, 0.32) # VAR
+        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, -0.32) # VAR
 
         ## FL (13)  FR (10)
         ## BL (11)  BR  (12)

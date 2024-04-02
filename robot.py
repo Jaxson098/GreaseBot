@@ -27,6 +27,12 @@ class CANCodersPosition:
     backLeftTurn:wpistruct.double = 0.0
     backRightTurn:wpistruct.double = 0.0
 
+@wpiutil.wpistruct.make_wpistruct(name="Drive")
+@dataclasses.dataclass
+class Drive:
+    xSpeed:wpistruct.double = 0.0
+    ySpeed:wpistruct.double = 0.0
+    rot:wpistruct.double = 0.0
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
@@ -55,6 +61,9 @@ class MyRobot(wpilib.TimedRobot):
         topicCE = nt.getStructTopic("/CANEncoders", CANCodersPosition)
         self.pubCE = topicCE.publish()
 
+        topicDrive = nt.getStructTopic("/Dive", Drive)
+        self.pubDrive = topicDrive.publish()
+
 
         # Align the wheels to 0
         self.swerve.alignment()
@@ -79,6 +88,14 @@ class MyRobot(wpilib.TimedRobot):
     def autonomousPeriodic(self) -> None:
         #self.driveWithJoystick(False)
         self.swerve.updateOdometry()
+
+    def logDrive(self,xSpeed, ySpeed, rot):
+        drive=Drive
+        drive.xSpeed=xSpeed
+        drive.ySpeed=ySpeed
+        drive.rot=rot
+        self.pubDrive.set(drive)
+
 
     def teleopPeriodic(self) -> None:
         # we want to publish data only every 1s, that's give us enough of data in Advantage Scope
@@ -160,6 +177,7 @@ class MyRobot(wpilib.TimedRobot):
         # variables.setTurnState(rot)
 
         #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        self.logDrive(xSpeed=xSpeed,ySpeed=ySpeed,rot=rot)
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
 
         
