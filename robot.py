@@ -47,7 +47,7 @@ class MyRobot(wpilib.TimedRobot):
 
         # self.controller = wpilib.Joystick(2) # VAR
         self.controller = wpilib.XboxController(0) # VAR
-        self.swerve = drivetrain.Drivetrain()
+        # self.swerve = drivetrain.Drivetrain()
         # self.shooter = shooter.ShootModule()
         # navxGyro is a file to test the navx Gyro. This can be ignored/commented out.
         # self.navxGyro = navxGyro.Gyro()
@@ -107,10 +107,10 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopPeriodic(self) -> None:
         # we want to publish data only every 1s, that's give us enough of data in Advantage Scope
-        if self.timer.hasElapsed(1):
-            self.logSwerveStates()
-            self.logCANEncoders()
-            self.timer.restart()
+        # if self.timer.hasElapsed(1):
+        #     self.logSwerveStates()
+        #     self.logCANEncoders()
+        #     self.timer.restart()
         
         # This one is an interesting one because Swerve example had the opposite - field relative true for teleop
         self.driveWithJoystick(False)
@@ -185,8 +185,8 @@ class MyRobot(wpilib.TimedRobot):
         # variables.setTurnState(rot)
 
         #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
-        self.logDrive(xSpeed=xSpeed,ySpeed=ySpeed,rot=rot)
-        self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        # self.logDrive(xSpeed=xSpeed,ySpeed=ySpeed,rot=rot)
+        # self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
 
         if self.controller.getLeftBumperPressed():
             self.liftDirection = True if self.liftDirection == False else False
