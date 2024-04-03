@@ -200,18 +200,19 @@ class MyRobot(wpilib.TimedRobot):
             0
         )
 
+        # shooterSpeed = wpimath.applyDeadband(self.controller.getRightX(), 0.05) * 0.75
+        # shooterSpeed = shooterSpeed if not self.shooterDirection else shooterSpeed*-1
+
         shooterSpeed = (
-            self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == False else
-            self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == True else
+            self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == True else
+            self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == False else
             0
         )
 
         liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02))
 
-        self.arm.lift1.set(liftSpeed*0.1)
-        self.arm.lift2.set(-liftSpeed*0.1)
+        self.arm.lift1.set(-liftSpeed*0.1)
+        self.arm.lift2.set(liftSpeed*0.1)
         #self.arm.intake.set(intakeSpeed)
         #self.arm.shooterTop.set(shooterSpeed)
         #self.arm.shooterBottom.set(shooterSpeed)
-
-        
