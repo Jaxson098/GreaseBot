@@ -208,8 +208,8 @@ class MyRobot(wpilib.TimedRobot):
 
         liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02))
 
-        self.arm.lift1.set(liftSpeed*0.25)
-        self.arm.lift2.set(-liftSpeed*0.25)
+        self.arm.lift1.set(liftSpeed*0.1)
+        self.arm.lift2.set(-liftSpeed*0.1)
         #self.arm.intake.set(intakeSpeed)
         #self.arm.shooterTop.set(shooterSpeed)
         #self.arm.shooterBottom.set(shooterSpeed)
