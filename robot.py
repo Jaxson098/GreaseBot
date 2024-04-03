@@ -19,8 +19,11 @@ import wpiutil
 from wpiutil import wpistruct
 import dataclasses
 from wpilib import Timer
+import arm
+
 @wpiutil.wpistruct.make_wpistruct(name="CANCoders")
 @dataclasses.dataclass
+
 class CANCodersPosition:
     frontLeftTurn:wpistruct.double = 0.0
     frontRightTurn:wpistruct.double = 0.0
@@ -29,6 +32,7 @@ class CANCodersPosition:
 
 @wpiutil.wpistruct.make_wpistruct(name="Drive")
 @dataclasses.dataclass
+
 class Drive:
     xSpeed:wpistruct.double = 0.0
     ySpeed:wpistruct.double = 0.0
@@ -37,6 +41,10 @@ class Drive:
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
         """Robot initialization function"""
+        self.liftDirection = False
+        self.shooterDirection = False
+        self.arm = arm.Arm
+
         # self.controller = wpilib.Joystick(2) # VAR
         self.controller = wpilib.XboxController(0) # VAR
         self.swerve = drivetrain.Drivetrain()
