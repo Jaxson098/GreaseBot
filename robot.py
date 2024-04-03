@@ -180,4 +180,30 @@ class MyRobot(wpilib.TimedRobot):
         self.logDrive(xSpeed=xSpeed,ySpeed=ySpeed,rot=rot)
         self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
 
+        if self.controller.getLeftBumperPressed():
+            self.liftDirection = True if self.liftDirection == False else False
+
+        if self.controller.getLeftBumper():
+            self.shooterDirection = True if self.shooterDirection == False else False
+
+        intakeSpeed = (
+            self.controller.getRightTriggerAxis() * 0.75 if self.liftDirection == False else
+            self.controller.getRightTriggerAxis() * -0.75 if self.liftDirection == True else
+            0
+        )
+
+        shooterSpeed = (
+            self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == False else
+            self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == True else
+            0
+        )
+
+        liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02))
+
+        self.arm.lift1.set(liftSpeed*0.25)
+        self.arm.lift2.set(-liftSpeed*0.25)
+        #self.arm.intake.set(intakeSpeed)
+        #self.arm.shooterTop.set(shooterSpeed)
+        #self.arm.shooterBottom.set(shooterSpeed)
+
         
