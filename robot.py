@@ -76,6 +76,8 @@ class MyRobot(wpilib.TimedRobot):
         # Align the wheels to 0
         self.swerve.alignment()
 
+    
+
     def logSwerveStates(self):
         frontLeftState = self.swerve.frontLeft.getState()
         frontRightState = self.swerve.frontRight.getState()
@@ -92,10 +94,23 @@ class MyRobot(wpilib.TimedRobot):
         canPost.backRightTurn = self.swerve.backRight.turningEncoder.getAbsolutePosition()
         self.pubCE.set(canPost)
 
+
+    def autonomousInit(self) -> None:
+        self.autonomousTimer = Timer()
+        self.autonomousTimer.start()
+
     #FUTURE
     def autonomousPeriodic(self) -> None:
         #self.driveWithJoystick(False)
         self.swerve.updateOdometry()
+        if self.autonomousTimer.get() < 2.0:
+            pass
+            xSpeed = 0.5
+            ySpeed = 0
+            rot = 0
+            fieldRelative = False
+            self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        
 
     def logDrive(self,xSpeed, ySpeed, rot):
         drive=Drive
