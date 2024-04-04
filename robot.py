@@ -43,7 +43,7 @@ class MyRobot(wpilib.TimedRobot):
         """Robot initialization function"""
         self.liftDirection = False
         self.shooterDirection = False
-        self.arm = arm.Arm
+        self.arm = arm.Arm()
 
         # self.controller = wpilib.Joystick(2) # VAR
         self.controller = wpilib.XboxController(0) # VAR
@@ -74,7 +74,7 @@ class MyRobot(wpilib.TimedRobot):
 
 
         # Align the wheels to 0
-        self.swerve.alignment()
+        # self.swerve.alignment()
 
     def logSwerveStates(self):
         frontLeftState = self.swerve.frontLeft.getState()
@@ -211,8 +211,10 @@ class MyRobot(wpilib.TimedRobot):
 
         liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02))
 
-        self.arm.lift1.set(-liftSpeed*0.1)
-        self.arm.lift2.set(liftSpeed*0.1)
+        self.arm.lift1.set(-liftSpeed)
+        self.arm.lift2.set(liftSpeed)
+        self.arm.lift3.set(-liftSpeed)
+        self.arm.lift3.set(liftSpeed)
         #self.arm.intake.set(intakeSpeed)
         #self.arm.shooterTop.set(shooterSpeed)
         #self.arm.shooterBottom.set(shooterSpeed)
