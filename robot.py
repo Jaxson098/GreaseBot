@@ -131,65 +131,65 @@ class MyRobot(wpilib.TimedRobot):
         # Get the x speed. We are inverting this because Xbox controllers return
         # negative values when we push forward.
         # NOTE: Check if we need inversion here
-        xSpeed = (
-            -self.xspeedLimiter.calculate(
-                # wpimath.applyDeadband(self.controller.getRawAxis(1), 0.1) # VAR
-                wpimath.applyDeadband(self.controller.getLeftY(), 0.02) # VAR
-            )
-            * variables.kMaxSpeed
-        )
-
-        # Get the y speed or sideways/strafe speed. We are inverting this because
-        # we want a positive value when we pull to the left. Xbox controllers
-        # return positive values when you pull to the right by default.
-        # NOTE: Check if we need inversion here
-        ySpeed = (
-            -self.yspeedLimiter.calculate(
-                # wpimath.applyDeadband(self.controller.getRawAxis(2), 0.6) # VAR
-                wpimath.applyDeadband(self.controller.getLeftX(), 0.02) # VAR
-            )
-            * variables.kTMaxSpeed
-        )
-
-        # Get the rate of angular rotation. We are inverting this because we want a
-        # positive value when we pull to the left (remember, CCW is positive in
-        # mathematics). Xbox controllers return positive values when you pull to
-        # the right by default.
-        # rot = (
-        #     (-self.rotLimiter.calculate(
-        #         wpimath.applyDeadband(self.controller.getRawAxis(3), 0.2) # VAR
+        # xSpeed = (
+        #     -self.xspeedLimiter.calculate(
+        #         # wpimath.applyDeadband(self.controller.getRawAxis(1), 0.1) # VAR
+        #         wpimath.applyDeadband(self.controller.getLeftY(), 0.02) # VAR
         #     )
-        #     * variables.kRMaxSpeed) +
-        #     (self.rotLimiter.calculate(
-        #         wpimath.applyDeadband(self.controller.getRawAxis(4), 0.2) # VAR
-        #     )
-        #     * variables.kRMaxSpeed)
+        #     * variables.kMaxSpeed
         # )
-        # rot = (
-        #     (-self.rotLimiter.calculate(
-        #         wpimath.applyDeadband(self.controller.getRightY(), 0.2) # VAR
+
+        # # Get the y speed or sideways/strafe speed. We are inverting this because
+        # # we want a positive value when we pull to the left. Xbox controllers
+        # # return positive values when you pull to the right by default.
+        # # NOTE: Check if we need inversion here
+        # ySpeed = (
+        #     -self.yspeedLimiter.calculate(
+        #         # wpimath.applyDeadband(self.controller.getRawAxis(2), 0.6) # VAR
+        #         wpimath.applyDeadband(self.controller.getLeftX(), 0.02) # VAR
         #     )
-        #     * variables.kRMaxSpeed) +
-        #     (self.rotLimiter.calculate(
-        #         wpimath.applyDeadband(self.controller.getRightX(), 0.2) # VAR
-        #     )
-        #     * variables.kRMaxSpeed)
+        #     * variables.kTMaxSpeed
         # )
-        rot = (
-            -self.rotLimiter.calculate(
-                wpimath.applyDeadband(self.controller.getRightX(), 0.02)
-            )
-            * variables.kMaxSpeed
-        )
 
-        # variables.setTurnState(rot)
+        # # Get the rate of angular rotation. We are inverting this because we want a
+        # # positive value when we pull to the left (remember, CCW is positive in
+        # # mathematics). Xbox controllers return positive values when you pull to
+        # # the right by default.
+        # # rot = (
+        # #     (-self.rotLimiter.calculate(
+        # #         wpimath.applyDeadband(self.controller.getRawAxis(3), 0.2) # VAR
+        # #     )
+        # #     * variables.kRMaxSpeed) +
+        # #     (self.rotLimiter.calculate(
+        # #         wpimath.applyDeadband(self.controller.getRawAxis(4), 0.2) # VAR
+        # #     )
+        # #     * variables.kRMaxSpeed)
+        # # )
+        # # rot = (
+        # #     (-self.rotLimiter.calculate(
+        # #         wpimath.applyDeadband(self.controller.getRightY(), 0.2) # VAR
+        # #     )
+        # #     * variables.kRMaxSpeed) +
+        # #     (self.rotLimiter.calculate(
+        # #         wpimath.applyDeadband(self.controller.getRightX(), 0.2) # VAR
+        # #     )
+        # #     * variables.kRMaxSpeed)
+        # # )
+        # rot = (
+        #     -self.rotLimiter.calculate(
+        #         wpimath.applyDeadband(self.controller.getRightX(), 0.02)
+        #     )
+        #     * variables.kMaxSpeed
+        # )
 
-        #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
-        self.logDrive(xSpeed=xSpeed,ySpeed=ySpeed,rot=rot)
-        self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        # # variables.setTurnState(rot)
 
-        if self.controller.getLeftBumperPressed():
-            self.liftDirection = True if self.liftDirection == False else False
+        # #self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        # self.logDrive(xSpeed=xSpeed,ySpeed=ySpeed,rot=rot)
+        # self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+
+        # if self.controller.getLeftBumperPressed():
+        #     self.liftDirection = True if self.liftDirection == False else False
 
         # if self.controller.getLeftBumper():
         #     self.shooterDirection = True if self.shooterDirection == False else False
