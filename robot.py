@@ -46,7 +46,7 @@ class MyRobot(wpilib.TimedRobot):
         self.arm = arm.Arm
 
         # self.controller = wpilib.Joystick(2) # VAR
-        self.controller = wpilib.XboxController(0) # VAR
+        # self.controller = wpilib.XboxController(0) # VAR
         self.swerve = drivetrain.Drivetrain()
         # self.shooter = shooter.ShootModule()
         # navxGyro is a file to test the navx Gyro. This can be ignored/commented out.
@@ -191,27 +191,27 @@ class MyRobot(wpilib.TimedRobot):
         if self.controller.getLeftBumperPressed():
             self.liftDirection = True if self.liftDirection == False else False
 
-        if self.controller.getLeftBumper():
-            self.shooterDirection = True if self.shooterDirection == False else False
+        # if self.controller.getLeftBumper():
+        #     self.shooterDirection = True if self.shooterDirection == False else False
 
-        intakeSpeed = (
-            self.controller.getRightTriggerAxis() * 0.75 if self.liftDirection == False else
-            self.controller.getRightTriggerAxis() * -0.75 if self.liftDirection == True else
-            0
-        )
+        # intakeSpeed = (
+        #     self.controller.getRightTriggerAxis() * 0.75 if self.liftDirection == False else
+        #     self.controller.getRightTriggerAxis() * -0.75 if self.liftDirection == True else
+        #     0
+        # )
 
-        shooterSpeed = (
-            self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == False else
-            self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == True else
-            0
-        )
+        # shooterSpeed = (
+        #     self.controller.getLeftTriggerAxis() * 0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == False else
+        #     self.controller.getLeftTriggerAxis() * -0.75 if self.controller.getLeftTriggerAxis and self.shooterDirection == True else
+        #     0
+        # )
 
         liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02))
 
         self.arm.lift1.set(liftSpeed*0.1)
         self.arm.lift2.set(-liftSpeed*0.1)
-        #self.arm.intake.set(intakeSpeed)
-        #self.arm.shooterTop.set(shooterSpeed)
-        #self.arm.shooterBottom.set(shooterSpeed)
+        self.arm.intake.set(intakeSpeed)
+        self.arm.shooterTop.set(shooterSpeed)
+        self.arm.shooterBottom.set(shooterSpeed)
 
         
