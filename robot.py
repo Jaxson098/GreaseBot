@@ -92,10 +92,20 @@ class MyRobot(wpilib.TimedRobot):
         canPost.backRightTurn = self.swerve.backRight.turningEncoder.getAbsolutePosition()
         self.pubCE.set(canPost)
 
-    #FUTURE
+    def autonomousInit(self) -> None:
+        self.autonomousTimer = Timer()
+        self.autonomousTimer.start()
+
     def autonomousPeriodic(self) -> None:
         #self.driveWithJoystick(False)
         self.swerve.updateOdometry()
+        if self.autonomousTimer.get() < 2.0:
+            pass
+            xSpeed = 0.5
+            ySpeed = 0
+            rot = 0
+            fieldRelative = False
+            self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
 
     def logDrive(self,xSpeed, ySpeed, rot):
         drive=Drive
@@ -103,7 +113,6 @@ class MyRobot(wpilib.TimedRobot):
         drive.ySpeed=ySpeed
         drive.rot=rot
         self.pubDrive.set(drive)
-
 
     def teleopPeriodic(self) -> None:
         # we want to publish data only every 1s, that's give us enough of data in Advantage Scope
@@ -208,10 +217,10 @@ class MyRobot(wpilib.TimedRobot):
 
         liftSpeed = (wpimath.applyDeadband(self.controller.getRightY(), 0.02))
 
-        self.arm.lift1.set(liftSpeed*0.1)
-        self.arm.lift2.set(-liftSpeed*0.1)
-        #self.arm.intake.set(intakeSpeed)
-        #self.arm.shooterTop.set(shooterSpeed)
-        #self.arm.shooterBottom.set(shooterSpeed)
-
-        
+        # self.arm.lift1.set(-liftSpeed)
+        # self.arm.lift2.set(liftSpeed)
+        # self.arm.lift3.set(-liftSpeed)
+        # self.arm.lift3.set(liftSpeed)
+        # self.arm.intake.set(intakeSpeed)
+        # self.arm.shooterTop.set(shooterSpeed)
+        # self.arm.shooterBottom.set(shooterSpeed)
