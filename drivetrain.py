@@ -1,9 +1,3 @@
-#
-# Copyright (c) FIRST and other WPILib contributors.
-# Open Source Software; you can modify and/or share it under the terms of
-# the WPILib BSD license file in the root directory of this project.
-#
-
 import math
 import navx
 import wpilib
@@ -12,98 +6,30 @@ import wpimath.kinematics
 import swervemodule
 import variables
 
-'''
-kMaxSpeed = 1.5  # meters per second
-kRMaxSpeed = 0.1
-kTMaxSpeed = 1.0
-kMaxAngularSpeed = math.pi  # 1/2 rotation per second
-frontLeftZero = 0
-frontRightZero = 0
-backLeftZero = 0
-backRightZero = 0
-zeroThreshold = wpimath.geometry.Rotation2d(0.3)
-'''
-
 class Drivetrain:
-    """
-    Represents a swerve drive style drivetrain.
-    """
 
     def __init__(self) -> None:
-        # NOTE: May need to tweak the center measurements 44.5mm rough measurement
-        # NOTE: EVERYTHING IS MEASURE IN METERS! 
-        # NOTE: Update center measure distance from each module
-        # Wheel to Wheel = 63.4 cm
-        # Chassis = 76cm
-        '''
-        self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32)
-        self.frontRightLocation = wpimath.geometry.Translation2d(0.32, -0.32)
-        self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
-        '''
-        # self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, 0.32) # VAR
-        # self.frontRightLocation = wpimath.geometry.Translation2d(0.32, -0.32) # VAR
-        # self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, 0.32) # VAR
-        # self.backRightLocation = wpimath.geometry.Translation2d(-0.32, -0.32) # VAR
-
-        self.frontRightLocation = wpimath.geometry.Translation2d(0.32, 0.32) # VAR
-        self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, -0.32) # VAR
-        self.backRightLocation = wpimath.geometry.Translation2d(-0.32, 0.32) # VAR
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, -0.32) # VAR
-
-        ## FL (13)  FR (10)
-        ## BL (11)  BR  (12)
-        # self.frontLeft = swervemodule.SwerveModule(4, 3, 4, 13) # VAR
-        # self.frontRight = swervemodule.SwerveModule(7, 8, 7, 10) # VAR
-        # self.backLeft = swervemodule.SwerveModule(2, 1, 2, 11) # VAR
-        # self.backRight = swervemodule.SwerveModule(5, 6, 5, 12) # VAR
-
-        self.frontLeft = swervemodule.SwerveModule(3, 4, 3, 13) # VAR
-        self.frontRight = swervemodule.SwerveModule(8, 2, 8, 10) # VAR
-        self.backLeft = swervemodule.SwerveModule(9, 6, 9, 11) # VAR
-        self.backRight = swervemodule.SwerveModule(7, 5, 7, 12) # VAR
-        '''
-        BERT NOTES:
         
-        driveMotorID: int,
-        turningMotorID: int,
-        driveEncoderID: int,
-        turningEncoderID: int,
+        #kinimatics locations to make a 2d object
+        self.frontRightLocation = wpimath.geometry.Translation2d(0.32, 0.32)
+        self.frontLeftLocation = wpimath.geometry.Translation2d(0.32, -0.32)
+        self.backRightLocation = wpimath.geometry.Translation2d(-0.32, 0.32)
+        self.backLeftLocation = wpimath.geometry.Translation2d(-0.32, -0.32)
 
-        Front Left (+,+) 
-            - Drive Motor: 4
-            - Rotation Motor: 3
-            - Drive Encoder: 4
-            - Rotation Encoder: 13 
-        
-        Front Right (+,-) 
-            - Drive Motor: 7
-            - Rotation Motor: 8
-            - Drive Encoder: 7
-            - Rotation Encoder: 10
+        #IDs
+        self.frontLeft = swervemodule.SwerveModule(3, 4, 3, 13)
+        self.frontRight = swervemodule.SwerveModule(8, 2, 8, 10)
+        self.backLeft = swervemodule.SwerveModule(9, 6, 9, 11)
+        self.backRight = swervemodule.SwerveModule(7, 5, 7, 12)
 
-        Rear Left (-,+) 
-            - Drive Motor: 2
-            - Rotation Motor: 1
-            - Drive Encoder: 2
-            - Rotation Encoder: 11
-
-        Rear Right (-,-) 
-            - Drive Motor: 5
-            - Rotation Motor: 6
-            - Drive Encoder: 5
-            - Rotation Encoder: 12
-
-        '''
-
-        #self.gyro = wpilib.AnalogGyro(0) # VAR
+        #setup gyro
         self.angler = navx.AHRS.create_spi()
-        #print("gyroscope = ", self.angler)
         self.gyro = self.angler.getAngle()
-        self.gyroradians = wpimath.units.degreesToRadians(self.gyro)
+        self.gyroradians = wpimath.geometry.Rotation2d.fromDegrees(self.gyro)
+        #print heading in degrees
         print("gyro", self.gyro)
 
-        #NOTE: Just defining the fixed kinematics of the bot
+        #turning individual locations into 1 object
         self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
             self.frontLeftLocation,
             self.frontRightLocation,
@@ -111,24 +37,18 @@ class Drivetrain:
             self.backRightLocation,
         )
 
-        #NOTE: getPosition - need to determine position value - velocity and angle -
-        #NOTE: Need to understand expected units/values returned - is it meters & radians?
+        #keeps track of robot position ovoer time
         self.odometry = wpimath.kinematics.SwerveDrive4Odometry(
-            self.kinematics,
-            wpimath.geometry.Rotation2d(self.gyroradians),
-            #self.angler.getAngle(),
-            #self.angler.getRotation2d(),
-            #self.gyro.Translation2d(),
-            #self.gyro.getRotation2d(),
-            (
+            self.kinematics, (
                 self.frontLeft.getPosition(),
                 self.frontRight.getPosition(),
                 self.backLeft.getPosition(),
                 self.backRight.getPosition(),
+                #NOTE: need to add:
+                self.angler.getRotation2d()
+                #starting position
             ),
         )
-
-        #print(self.frontLeft.getPosition(), self.frontRight.getPosition(), self.backLeft.getPosition(), self.backRight.getPosition())
 
         self.angler.reset()
 
@@ -140,43 +60,39 @@ class Drivetrain:
         fieldRelative: bool,
         periodSeconds: float,
     ) -> None:
-        """
-        Method to drive the robot using joystick info.
-        :param xSpeed: Speed of the robot in the x direction (forward).
-        :param ySpeed: Speed of the robot in the y direction (sideways).
-        :param rot: Angular rate of the robot.
-        :param fieldRelative: Whether the provided x and y speeds are relative to the field.
-        :param periodSeconds: Time
-        """
+        #function uses that data ^ to drive robot
+
+        #takes the overall desired chasis speeds and performs inverse kinimatics (splits it up into desired motion for the 4 module locations)
         swerveModuleStates = self.kinematics.toSwerveModuleStates(
+            #creates a overall desired speed of the robot in a single time frame, non continues desired motion so it can be calculated
             wpimath.kinematics.ChassisSpeeds.discretize(
+                #converts desired field relitive motion into robot relitive desired motion so the robot can actually perform said motion
                 wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xSpeed, ySpeed, rot, wpimath.geometry.Rotation2d(self.gyroradians)
-                )
+                    #the desired speeds and gyro heading in radians all of this ^ uses
+                    xSpeed, ySpeed, rot, self.angler.getRotation2d()
+                ) 
+                #only convert to robot relitive if field relitive
                 if fieldRelative
+                #if it is not field relitive dont convert to robot relitive asume it was robot relitive from the beginning
                 else wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot),
                 periodSeconds,
             )
         )
+
+        #makes sure the inverse kinimatics did not have a wheel go over kmax speed, if so reduce all wheel speeds until they are all < Kmaxspeed
         wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(
             swerveModuleStates, variables.kMaxSpeed
         )
 
-        #NOTE: Should we desaturate for Turning speed motors? 
-        
-        self.frontLeft.setDesiredState(swerveModuleStates[0]) # VAR
-        self.frontRight.setDesiredState(swerveModuleStates[1]) # VAR
-        self.backLeft.setDesiredState(swerveModuleStates[2]) # VAR
-        self.backRight.setDesiredState(swerveModuleStates[3]) # VAR
+        #set the diffrent modules to the desired speeds
+        self.frontLeft.setDesiredState(swerveModuleStates[0])
+        self.frontRight.setDesiredState(swerveModuleStates[1])
+        self.backLeft.setDesiredState(swerveModuleStates[2])
+        self.backRight.setDesiredState(swerveModuleStates[3])
 
-
-        #print(wpimath.kinematics.ChassisSpeeds(0, 0, rot))
-        #print(wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot))
-        #print(swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3])
-
-    # CURRENLY NOT BEING USED
     def updateOdometry(self) -> None:
         """Updates the field relative position of the robot."""
+        #gets the states of the swerve modules and updates the SwerveDrive4Odometry object
         self.odometry.update(
             wpimath.geometry.Rotation2d(self.gyroradians),
             (
@@ -186,27 +102,13 @@ class Drivetrain:
                 self.backRight.getPosition(),
             ),
         )
-    '''
+
     def alignment(self) -> None:
-        #Updates the wheel alignment for robot to zer0
-        #Leverage Network Tables to report out each wheel position
-        if self.frontLeft.getPosition().angle > variables.zeroThreshold:
-            self.frontLeft.turningMotor.setVoltage(0.1)
-            print("Front Left Position = ", self.frontLeft.getPosition())
-        if self.backRight.getPosition().angle > variables.zeroThreshold:
-            self.frontRight.turningMotor.setVoltage(0.1)
-            print("Front Right Position = ", self.frontRight.getPosition())
-        if self.backLeft.getPosition().angle > variables.zeroThreshold:
-            self.backLeft.turningMotor.setVoltage(0.1)
-            print("Back Left Position = ", self.backLeft.getPosition())
-        if self.backRight.getPosition().angle > variables.zeroThreshold:
-            self.backRight.turningMotor.setVoltage(0.1)
-            print("Back Right Position = ", self.backRight.getPosition())
-    '''
-    def alignment(self) -> None:
+        """aligns the wheels"""
         print("aligning")
-        self.frontLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
-        self.frontRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
-        self.backLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
-        self.backRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0, wpimath.geometry.Rotation2d(0))) # VAR
-        
+        #aligns the wheels forward useing the desired angle and the desired speed
+        #(speed is nuanced since it uses PID and other optimization calculations in setDesiredState)
+        self.frontLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0.1, wpimath.geometry.Rotation2d.fromDegrees(-177)))
+        self.frontRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0.1, wpimath.geometry.Rotation2d.fromDegrees(176)))
+        self.backLeft.setDesiredState(wpimath.kinematics.SwerveModuleState(0.1, wpimath.geometry.Rotation2d.fromDegrees(-176)))
+        self.backRight.setDesiredState(wpimath.kinematics.SwerveModuleState(0.1, wpimath.geometry.Rotation2d.fromDegrees(10)))
